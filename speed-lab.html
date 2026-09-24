@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speed Lab — Olympiad Champ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .mode-card {
+      text-align: left; text-decoration: none; color: inherit; cursor: pointer;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 22px 22px 18px; display: block; transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .mode-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+    .question-big {
+      font-family: var(--font-mono); font-size: clamp(40px, 8vw, 72px); font-weight: 700;
+      text-align: center; letter-spacing: 2px; margin: 18px 0 6px; font-variant-numeric: tabular-nums;
+    }
+    .yn-row { display: flex; gap: 14px; justify-content: center; margin-top: 18px; }
+    .yn-btn {
+      font-family: var(--font-display); font-weight: 800; font-size: 22px;
+      padding: 14px 46px; border-radius: 14px; border: 3px solid var(--border-bright);
+      background: var(--surface); color: var(--ink); cursor: pointer; transition: all .12s ease;
+    }
+    .yn-btn:hover { border-color: var(--teal); color: var(--teal); transform: scale(1.04); }
+    .drill-hud {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px 16px;
+    }
+    .hud-item { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--ink-dim); }
+    .hud-item b { color: var(--ink); }
+    .progress-dots { display: flex; gap: 5px; margin-left: auto; }
+    .pdot { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--border-bright); }
+    .pdot--right { background: var(--green); border-color: var(--green); }
+    .pdot--wrong { background: var(--red); border-color: var(--red); }
+    .pdot--now { border-color: var(--accent); }
+    .streak-flame { color: var(--amber); font-weight: 800; }
+  </style>
+</head>
+<body>
+  <header class="topnav" id="topnav"></header>
+
+  <main class="wrap">
+
+    <div id="mode-select">
+      <p class="section-label">Mission 2 · Speed Lab</p>
+      <h1 style="font-family:var(--font-display); font-size:clamp(30px,4.5vw,42px); margin:0 0 8px;">Fast is a trick. Tricks can be learned.</h1>
+      <p class="muted" style="max-width:680px; margin:0 0 24px;">
+        Shakuntala Devi multiplied 13-digit numbers in her head — using patterns, not muscle.
+        Learn each trick, drill it ten times, and watch the clock surrender.
+        Need a refresher? Open the <a href="toolbox.html" style="color:var(--accent);">Champion's Toolbox</a> in another tab.
+      </p>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px;">
+        <button class="mode-card card--accent" data-drill="fast-mult" type="button" style="border-top:4px solid var(--accent);">
+          <span class="tag">Drill 1</span>
+          <h3 style="font-family:var(--font-display); font-size:21px; margin:10px 0 6px;">Lightning Multiplication</h3>
+          <p class="muted small" style="margin:0 0 10px;">×11 magic, ×5, ×25, ×50, ×9, ×99 and squares ending in 5 — the famous shortcuts.</p>
+          <span class="stat-strip"><span>10 questions</span><span>~2 min</span></span>
+        </button>
+        <button class="mode-card" data-drill="divis" type="button" style="border-top:4px solid var(--teal);">
+          <span class="tag tag--teal">Drill 2</span>
+          <h3 style="font-family:var(--font-display); font-size:21px; margin:10px 0 6px;">Divisibility Detective</h3>
+          <p class="muted small" style="margin:0 0 10px;">Is it divisible by 3? 4? 9? 11? Spot the clue without dividing. Pure detective work.</p>
+          <span class="stat-strip"><span>10 questions</span><span>~90 sec</span></span>
+        </button>
+        <button class="mode-card" data-drill="prime" type="button" style="border-top:4px solid var(--amber);">
+          <span class="tag tag--amber">Drill 3</span>
+          <h3 style="font-family:var(--font-display); font-size:21px; margin:10px 0 6px;">Prime Patrol</h3>
+          <p class="muted small" style="margin:0 0 10px;">Prime or not prime? Use the square-root test like a champion — no lists needed.</p>
+          <span class="stat-strip"><span>10 questions</span><span>~2 min</span></span>
+        </button>
+        <button class="mode-card" data-drill="mixed" type="button" style="border-top:4px solid var(--ink);">
+          <span class="tag" style="background:var(--red-dim); color:var(--red);">Drill 4</span>
+          <h3 style="font-family:var(--font-display); font-size:21px; margin:10px 0 6px;">Mixed Sprint</h3>
+          <p class="muted small" style="margin:0 0 10px;">All three skills shuffled together — exactly like a real olympiad round.</p>
+          <span class="stat-strip"><span>10 questions</span><span>~2 min</span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ drill screen ============ -->
+    <div id="drill-screen" style="display:none;">
+      <div class="drill-hud" style="margin-bottom:20px;">
+        <span class="hud-item">Drill: <b id="d-name"></b></span>
+        <span class="timer-pill" id="d-timer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/></svg><span id="d-timer-text">0:00</span></span>
+        <span class="hud-item">Q <b id="d-qnum">1</b>/10</span>
+        <span class="hud-item"><span class="streak-flame" id="d-streak">🔥 0</span></span>
+        <span class="progress-dots" id="d-dots"></span>
+      </div>
+
+      <section class="card card--elevated">
+        <p class="timer-target" id="d-hint-line" style="text-align:center; margin:0;"></p>
+        <p class="question-big" id="d-question"></p>
+        <div id="d-input-zone" style="max-width:340px; margin:0 auto;">
+          <input type="number" id="d-answer" class="answer-box" step="any" placeholder="?" autocomplete="off">
+          <button class="btn btn--teal btn--block" id="d-submit" type="button" style="margin-top:14px;">Lock it in</button>
+        </div>
+        <div id="d-yn-zone" class="yn-row" style="display:none;">
+          <button class="yn-btn" id="d-yes" type="button">YES</button>
+          <button class="yn-btn" id="d-no" type="button">NO</button>
+        </div>
+        <div id="d-feedback" style="display:none;"></div>
+      </section>
+    </div>
+
+    <!-- ============ results screen ============ -->
+    <div id="result-screen" style="display:none;">
+      <section class="card card--hero" style="text-align:center;">
+        <p class="section-label" style="justify-content:center;">Drill complete</p>
+        <h1 style="font-family:var(--font-display); font-size:clamp(32px,5vw,48px); margin:0 0 6px;" id="r-score"></h1>
+        <p class="muted" id="r-line" style="margin:0 0 18px;"></p>
+        <div class="kpi-row" style="max-width:640px; margin:0 auto 22px;">
+          <div class="kpi"><div class="kpi__value" id="r-avg"></div><div class="kpi__label">Avg / question</div></div>
+          <div class="kpi"><div class="kpi__value" id="r-best"></div><div class="kpi__label">Best streak</div></div>
+          <div class="kpi"><div class="kpi__value" id="r-xp"></div><div class="kpi__label">XP earned</div></div>
+        </div>
+        <div id="r-badges" style="margin-bottom:16px;"></div>
+        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+          <button class="btn btn--primary" id="r-again" type="button">Run it again</button>
+          <button class="btn btn--ghost" id="r-home" type="button">Pick another drill</button>
+          <a class="btn btn--ghost" href="dashboard.html" style="text-decoration:none;">See my dashboard</a>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <footer>
+    Olympiad Champ · Speed Lab · aligned with chapters: Whole Numbers · Divisibility · Observation and Induction
+  </footer>
+
+  <script src="assets/app.js"></script>
+  <script>
+  (function () {
+    OC.buildNav('speed');
+    var el = function (id) { return document.getElementById(id); };
+
+    /* ============ question generators ============ */
+
+    var MULT_TYPES = [
+      {
+        name: '×11 magic', make: function () {
+          var a = OC.randInt(12, 89);
+          var s = String(a), mid = Number(s[0]) + Number(s[1]);
+          var explain = 'Split the digits and put their sum in the middle: ' + s[0] + ' → (' + s[0] + '+' + s[1] + '=' + mid + ') ← ' + s[1] + ', then handle any carry.';
+          return { q: a + ' × 11 = ?', a: a * 11, numeric: true, trick: explain };
+        }
+      },
+      {
+        name: '×5 (halve-ten)', make: function () {
+          var a = OC.randInt(14, 98);
+          return { q: a + ' × 5 = ?', a: a * 5, numeric: true, trick: 'Multiply by 10, halve it: ' + a + ' × 10 = ' + (a * 10) + ', ÷ 2 = ' + (a * 5) + '.' };
+        }
+      },
+      {
+        name: '×25 (quarter of 100)', make: function () {
+          var a = OC.randInt(8, 48);
+          return { q: a + ' × 25 = ?', a: a * 25, numeric: true, trick: '×100 then ÷ 4: ' + a + ' × 100 = ' + (a * 100) + ', ÷ 4 = ' + (a * 25) + '. (25 is a quarter of 100!)' };
+        }
+      },
+      {
+        name: '×50 (half of 100)', make: function () {
+          var a = OC.randInt(8, 40);
+          return { q: a + ' × 50 = ?', a: a * 50, numeric: true, trick: '×100 then ÷ 2: ' + a + ' × 100 = ' + (a * 100) + ', ÷ 2 = ' + (a * 50) + '.' };
+        }
+      },
+      {
+        name: '×9 (ten minus one)', make: function () {
+          var a = OC.randInt(13, 89);
+          return { q: a + ' × 9 = ?', a: a * 9, numeric: true, trick: '×10 then subtract the number once: ' + (a * 10) + ' − ' + a + ' = ' + (a * 9) + '.' };
+        }
+      },
+      {
+        name: '×99 (hundred minus one)', make: function () {
+          var a = OC.randInt(12, 79);
+          return { q: a + ' × 99 = ?', a: a * 99, numeric: true, trick: '×100 then subtract the number once: ' + (a * 100) + ' − ' + a + ' = ' + (a * 99) + '.' };
+        }
+      },
+      {
+        name: 'square ending in 5', make: function () {
+          var n = OC.randInt(1, 9);
+          var a = n * 10 + 5;
+          return {
+            q: a + ' × ' + a + ' = ?', a: a * a, numeric: true,
+            trick: 'Take the tens digit ' + n + ', multiply by the next number ' + (n + 1) + ': ' + n + ' × ' + (n + 1) + ' = ' + (n * (n + 1)) + ', then stick 25 on the end: ' + (n * (n + 1)) + '25.'
+          };
+        }
+      }
+    ];
+
+    var DIV_RULES = {
+      3: function (n) { var s = String(n).split('').reduce(function (t, d) { return t + Number(d); }, 0); return { ok: s % 3 === 0, why: 'Add the digits: ' + s + (s % 3 === 0 ? ' ÷ 3 exactly, so YES.' : ' is not divisible by 3, so NO.') }; },
+      4: function (n) { var last2 = n % 100; return { ok: last2 % 4 === 0, why: 'Only the last two digits matter: ' + last2 + (last2 % 4 === 0 ? ' ÷ 4 exactly, so YES.' : ' is not divisible by 4, so NO.') }; },
+      6: function (n) { var ok = n % 2 === 0 && n % 3 === 0; var s = String(n).split('').reduce(function (t, d) { return t + Number(d); }, 0); return { ok: ok, why: 'Divisible by 6 means divisible by BOTH 2 and 3. Even? ' + (n % 2 === 0 ? 'yes' : 'no') + '. Digit sum ' + s + (s % 3 === 0 ? ' ÷ 3 exactly' : ' not ÷ 3') + '. So ' + (ok ? 'YES' : 'NO') + '.' }; },
+      9: function (n) { var s = String(n).split('').reduce(function (t, d) { return t + Number(d); }, 0); return { ok: s % 9 === 0, why: 'Add the digits: ' + s + (s % 9 === 0 ? ' ÷ 9 exactly, so YES.' : ' is not divisible by 9, so NO.') }; },
+      8: function (n) { var last3 = n % 1000; return { ok: last3 % 8 === 0, why: 'Check the last three digits: ' + last3 + (last3 % 8 === 0 ? ' ÷ 8 exactly, so YES.' : ' is not divisible by 8, so NO.') }; },
+      11: function (n) {
+        var d = String(n).split('').reverse().map(Number);
+        var odd = 0, even = 0;
+        d.forEach(function (v, i) { if (i % 2 === 0) odd += v; else even += v; });
+        var diff = Math.abs(odd - even);
+        return { ok: diff % 11 === 0, why: 'Alternating sum of digits (from the right): ' + odd + ' − ' + even + ' = ' + diff + (diff % 11 === 0 ? ', which is a multiple of 11 — YES.' : ', not a multiple of 11 — NO.') };
+      }
+    };
+
+    function genDivis() {
+      var keys = Object.keys(DIV_RULES).map(Number);
+      var d = OC.pick(keys);
+      var wantDiv = Math.random() < 0.5;
+      var n;
+      if (wantDiv) {
+        n = d * OC.randInt(6, 90);
+        while (n < 200 || n > 9999) n = d * OC.randInt(6, 90);
+      } else {
+        n = OC.randInt(220, 9800);
+        while (n % d === 0) n++;
+      }
+      var check = DIV_RULES[d](n);
+      return {
+        q: 'Is ' + n + ' divisible by ' + d + '?', a: check.ok, numeric: false, yesNo: true,
+        trick: check.why
+      };
+    }
+
+    var PRIMES_TO_200 = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199];
+    var NASTY_COMPOSITES = [];
+    (function () {
+      for (var n = 51; n <= 199; n += 2) {
+        if (n % 5 === 0 || n % 3 === 0) continue;
+        if (PRIMES_TO_200.indexOf(n) === -1) NASTY_COMPOSITES.push(n); // 7×11, 13×13, 7×17...
+      }
+    })();
+
+    function primeFactorWhy(n) {
+      for (var i = 2; i * i <= n; i++) if (n % i === 0) return n + ' = ' + i + ' × ' + (n / i) + ' — composite, not prime.';
+      return 'No prime up to √' + n + ' (≈ ' + Math.floor(Math.sqrt(n)) + ') divides ' + n + ' — it is prime!';
+    }
+
+    function genPrime() {
+      var isPrime = Math.random() < 0.5;
+      var n;
+      if (isPrime) n = OC.pick(PRIMES_TO_200.filter(function (p) { return p > 50; }));
+      else n = OC.pick(NASTY_COMPOSITES.length ? NASTY_COMPOSITES : [91, 119, 143]);
+      return { q: 'Is ' + n + ' a prime number?', a: isPrime, numeric: false, yesNo: true, trick: 'Square-root test: only try primes up to √' + n + ' ≈ ' + Math.floor(Math.sqrt(n)) + '. ' + primeFactorWhy(n) };
+    }
+
+    function genMult() { return OC.pick(MULT_TYPES).make(); }
+
+    var GENERATORS = {
+      'fast-mult': { name: 'Lightning Multiplication', gen: genMult, hint: 'Multiply by 10 / 100 first, then halve or quarter. Squares ending in 5: n·(n+1) then 25.' },
+      'divis': { name: 'Divisibility Detective', gen: genDivis, hint: '3 & 9: digit sums. 4: last two digits. 8: last three. 11: alternating sum. 6: both 2 AND 3.' },
+      'prime': { name: 'Prime Patrol', gen: genPrime, hint: 'Only test primes up to the square root: 2, 3, 5, 7, 11, 13. 1 is NOT prime.' },
+      'mixed': { name: 'Mixed Sprint', gen: function () { return OC.pick([genMult, genDivis, genPrime])(); }, hint: 'Trust your trained instincts — you know all three trick families now.' }
+    };
+
+    /* ============ drill engine ============ */
+
+    var drill = null;
+    var questions = [];
+    var idx = 0;
+    var right = 0;
+    var streak = 0, bestStreak = 0;
+    var drillTimer = null, qStart = 0;
+    var perQuestionTimes = [];
+
+    function startDrill(key) {
+      drill = key;
+      var g = GENERATORS[key];
+      questions = [];
+      for (var i = 0; i < 10; i++) questions.push(g.gen());
+      idx = 0; right = 0; streak = 0; bestStreak = 0; perQuestionTimes = [];
+      el('mode-select').style.display = 'none';
+      el('result-screen').style.display = 'none';
+      el('drill-screen').style.display = 'block';
+      el('d-name').textContent = g.name;
+      drillTimer = new OC.ChampTimer(el('d-timer-text'));
+      drillTimer.start();
+      renderDots();
+      showQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderDots() {
+      var host = el('d-dots');
+      host.innerHTML = '';
+      questions.forEach(function (q, i) {
+        var d = document.createElement('span');
+        d.className = 'pdot';
+        if (i < idx) d.classList.add(q._correct ? 'pdot--right' : 'pdot--wrong');
+        else if (i === idx) d.classList.add('pdot--now');
+        host.appendChild(d);
+      });
+    }
+
+    function showQuestion() {
+      var q = questions[idx];
+      el('d-qnum').textContent = idx + 1;
+      el('d-hint-line').textContent = GENERATORS[drill].hint;
+      el('d-question').textContent = q.q;
+      el('d-feedback').style.display = 'none';
+      el('d-streak').textContent = '🔥 ' + streak;
+      if (q.numeric) {
+        el('d-input-zone').style.display = 'block';
+        el('d-yn-zone').style.display = 'none';
+        el('d-answer').value = '';
+        el('d-answer').focus();
+      } else {
+        el('d-input-zone').style.display = 'none';
+        el('d-yn-zone').style.display = 'flex';
+      }
+      qStart = Date.now();
+      renderDots();
+    }
+
+    function answer(val) {
+      var q = questions[idx];
+      var correct = q.numeric ? Math.abs(parseFloat(val) - q.a) < 0.001 : val === q.a;
+      var dt = (Date.now() - qStart) / 1000;
+      perQuestionTimes.push(dt);
+      q._correct = correct;
+      if (correct) { right++; streak++; bestStreak = Math.max(bestStreak, streak); }
+      else streak = 0;
+
+      var fb = el('d-feedback');
+      var cls = correct ? 'banner--win' : 'banner--lose';
+      var head = correct
+        ? (dt < 8 ? 'Snappy! ' + dt.toFixed(1) + ' seconds.' : 'Correct!')
+        : 'Not this time — the answer: ' + (q.numeric ? q.a : (q.a ? 'YES' : 'NO'));
+      fb.innerHTML = '<div class="banner ' + cls + '"><h3 style="margin:0 0 8px; font-size:19px;">' + head + '</h3>' +
+        '<p class="small" style="margin:0 0 14px;"><b>The trick:</b> ' + OC.esc(q.trick) + '</p>' +
+        '<button class="btn btn--primary btn--small" id="d-next" type="button">' + (idx >= 9 ? 'See my results' : 'Next question →') + '</button></div>';
+      fb.style.display = 'block';
+      el('d-yn-zone').style.display = 'none';
+      el('d-input-zone').style.display = 'none';
+      el('d-streak').textContent = '🔥 ' + streak;
+      renderDots();
+      document.getElementById('d-next').addEventListener('click', function () {
+        idx++;
+        if (idx >= questions.length) finishDrill();
+        else showQuestion();
+      });
+    }
+
+    el('d-submit').addEventListener('click', function () {
+      var v = el('d-answer').value;
+      if (v === '' || isNaN(parseFloat(v))) { el('d-answer').focus(); return; }
+      answer(parseFloat(v));
+    });
+    el('d-answer').addEventListener('keydown', function (e) { if (e.key === 'Enter') el('d-submit').click(); });
+    el('d-yes').addEventListener('click', function () { answer(true); });
+    el('d-no').addEventListener('click', function () { answer(false); });
+
+    function finishDrill() {
+      var total = drillTimer.stop();
+      drillTimer = null;
+      var xp = right * 5 + (right === 10 ? 20 : 0);
+      OC.record({ kind: 'drill', drill: drill, title: GENERATORS[drill].name, correct: right, total: 10, timeSec: total, targetSec: 120, xp: xp });
+
+      el('drill-screen').style.display = 'none';
+      el('result-screen').style.display = 'block';
+      var avg = perQuestionTimes.length ? perQuestionTimes.reduce(function (a, b) { return a + b; }, 0) / perQuestionTimes.length : 0;
+      el('r-score').textContent = right + ' / 10';
+      el('r-line').textContent =
+        right === 10 ? 'Perfect score! Shakuntala Devi would nod approvingly.' :
+        right >= 8 ? 'Strong run — you are one practice round from perfection.' :
+        right >= 5 ? 'Solid progress. Re-read the tricks shown after each miss, then go again.' :
+        'Every champion starts here. Read the trick after each question and try once more — it clicks fast.';
+      el('r-avg').textContent = avg.toFixed(1) + ' s';
+      el('r-best').textContent = bestStreak;
+      el('r-xp').textContent = '+' + xp;
+
+      var badgeBox = el('r-badges');
+      badgeBox.innerHTML = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    el('r-again').addEventListener('click', function () { startDrill(drill); });
+    el('r-home').addEventListener('click', function () {
+      el('result-screen').style.display = 'none';
+      el('mode-select').style.display = 'block';
+      window.scrollTo({ top: 0 });
+    });
+
+    OC.$all('.mode-card').forEach(function (b) {
+      b.addEventListener('click', function () { startDrill(b.dataset.drill); });
+    });
+
+  })();
+  </script>
+</body>
+</html>

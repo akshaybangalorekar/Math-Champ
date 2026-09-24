@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard — Olympiad Champ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .badge-card {
+      border: 1.5px solid var(--border); border-radius: 12px; padding: 14px 16px;
+      background: var(--surface); text-align: center;
+    }
+    .badge-card.is-earned { border-color: var(--amber); background: var(--amber-dim); }
+    .badge-card.is-locked { opacity: 0.5; filter: grayscale(1); }
+    .badge-card__icon { font-size: 26px; line-height: 1; }
+    .badge-card__name { font-family: var(--font-display); font-weight: 800; font-size: 15.5px; margin: 6px 0 3px; }
+    .badge-card__desc { font-size: 12px; color: var(--ink-dim); line-height: 1.45; }
+    .skill-row { margin-bottom: 16px; }
+    .skill-row__top { display: flex; justify-content: space-between; font-size: 14.5px; font-weight: 800; margin-bottom: 6px; gap: 10px; }
+    .chart-box { background: var(--surface-2); border: 1px dashed var(--border-bright); border-radius: 12px; padding: 14px; }
+    .empty-note { text-align: center; padding: 40px 20px; color: var(--ink-dim); }
+    .empty-note b { font-family: var(--font-display); font-size: 20px; display: block; margin-bottom: 6px; color: var(--ink); }
+  </style>
+</head>
+<body>
+  <header class="topnav" id="topnav"></header>
+
+  <main class="wrap">
+    <p class="section-label">Mission 4 · My Dashboard</p>
+    <h1 style="font-family:var(--font-display); font-size:clamp(30px,4.5vw,42px); margin:0 0 8px;">Proof of how far you've come</h1>
+    <p class="muted" style="max-width:680px; margin:0 0 24px;">
+      Every attempt, every second, every note — recorded here. The graph only goes one direction for people who keep showing up: <b>down in time, up in skill</b>.
+    </p>
+
+    <!-- KPI rows: two rows of three so cards never break unevenly on iPad/tablet widths -->
+    <div class="kpi-row" style="margin-bottom:14px;">
+      <div class="kpi card--elevated" style="border-top:4px solid var(--accent);"><div class="kpi__value" id="k-xp">0</div><div class="kpi__label">Total XP</div></div>
+      <div class="kpi"><div class="kpi__value" id="k-level">Rookie</div><div class="kpi__label">Rank</div></div>
+      <div class="kpi"><div class="kpi__value" id="k-streak">0</div><div class="kpi__label">Day streak</div></div>
+    </div>
+    <div class="kpi-row" style="margin-bottom:16px;">
+      <div class="kpi"><div class="kpi__value" id="k-solved">0</div><div class="kpi__label">Word problems solved</div></div>
+      <div class="kpi"><div class="kpi__value" id="k-acc">–</div><div class="kpi__label">Word-problem accuracy</div></div>
+      <div class="kpi"><div class="kpi__value" id="k-time">–</div><div class="kpi__label">Avg solve time</div></div>
+    </div>
+    <div class="card card--hero" style="margin-bottom:26px;">
+      <div style="display:flex; justify-content:space-between; font-weight:800; margin-bottom:8px;">
+        <span id="rank-line">Rank progress</span><span class="timer-target" id="rank-next"></span>
+      </div>
+      <div class="pbar"><div class="pbar__fill" id="rank-bar"></div></div>
+      <div class="small muted" style="margin-top:8px;" id="rank-hint"></div>
+    </div>
+
+    <!-- time trend -->
+    <section class="card card--elevated" style="margin-bottom:26px;">
+      <p class="section-label">Your speed curve — it should slope DOWN</p>
+      <div id="chart-empty" class="empty-note" style="display:none;">
+        <b>No timed attempts yet</b>
+        Solve a few word problems and your speed curve will appear here.
+        Every dot is one attempt — champions watch their dots climb down the chart.
+        <div style="margin-top:14px;"><a class="btn btn--primary" href="word-problems.html" style="text-decoration:none;">Solve my first problem</a></div>
+      </div>
+      <div class="chart-box" id="chart-box" style="display:none;">
+        <canvas id="time-chart" height="260"></canvas>
+        <p class="small muted" style="margin:10px 0 0; text-align:center;">
+          Each dot = one word problem attempt (time taken). Green dots = correct. The dashed line = the Olympian target. The line through the dots is your trend — downward is victory.
+        </p>
+      </div>
+    </section>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:26px;" class="dash-2col">
+      <!-- skills -->
+      <section class="card card--elevated card--teal">
+        <p class="section-label section-label--teal">Skill power levels</p>
+        <div id="skill-list"></div>
+        <p class="small muted" style="margin:12px 0 0;">Best drill score out of 10 per training area · word problems out of the 13-bank.</p>
+      </section>
+
+      <!-- badges -->
+      <section class="card card--elevated card--amber">
+        <p class="section-label section-label--amber">Badge shelf</p>
+        <div class="badge-grid" id="badge-grid"></div>
+      </section>
+    </div>
+
+    <!-- journal -->
+    <section class="card card--elevated" style="margin-bottom:26px;">
+      <p class="section-label">My learning journal</p>
+      <div id="journal-list"></div>
+    </section>
+
+    <!-- history -->
+    <section class="card card--elevated" style="margin-bottom:16px;">
+      <p class="section-label">Recent training log</p>
+      <div class="table-wrap"><div class="table-scroll">
+        <table class="data">
+          <thead><tr><th>Date</th><th>Activity</th><th>Result</th><th class="num">Time</th><th class="num">vs target</th><th class="num">XP</th></tr></thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div></div>
+    </section>
+
+    <section class="card card--recessed" style="text-align:center;">
+      <p class="small muted" style="margin:0 0 10px;">
+        All progress lives only in this browser. Resetting starts a clean training log — the skill you built stays in your head, where it counts.
+      </p>
+      <button class="btn btn--ghost btn--small" id="reset-btn" type="button" style="color:var(--red); border-color:var(--red);">Reset all progress</button>
+    </section>
+  </main>
+
+  <footer>
+    Olympiad Champ · Dashboard · keep showing up, champion
+  </footer>
+
+  <script src="assets/app.js"></script>
+  <script>
+  (function () {
+    OC.buildNav('dash');
+    var S = OC.STATE;
+    var el = function (id) { return document.getElementById(id); };
+
+    /* ---------- KPIs ---------- */
+    var words = S.attempts.filter(function (a) { return a.kind === 'word'; });
+    var wordsCorrect = words.filter(function (a) { return a.correct; });
+    var lv = OC.levelOf(S.xp);
+
+    el('k-xp').textContent = S.xp;
+    el('k-level').textContent = lv.level.name;
+    el('k-streak').textContent = S.streak.count || 0;
+    el('k-solved').textContent = wordsCorrect.length;
+    el('k-acc').textContent = words.length ? Math.round(100 * wordsCorrect.length / words.length) + '%' : '–';
+    el('k-time').textContent = wordsCorrect.length ? OC.fmtTime(Math.round(wordsCorrect.reduce(function (t, a) { return t + a.timeSec; }, 0) / wordsCorrect.length)) : '–';
+
+    el('rank-bar').style.width = lv.pct + '%';
+    el('rank-line').textContent = 'Rank: ' + lv.level.name;
+    el('rank-next').textContent = lv.next ? (lv.next.min - S.xp) + ' XP to ' + lv.next.name : 'MAX';
+    el('rank-hint').textContent = lv.next
+      ? 'Earn ' + (lv.next.min - S.xp) + ' more XP to reach ' + lv.next.name + '. A correct word problem is worth up to 30 XP — two good problems and you’re there.'
+      : 'You’ve reached the highest rank. Legendary — now defend it!';
+
+    /* ---------- time chart ---------- */
+    var chartData = words.map(function (a, i) { return { t: a.timeSec, ok: a.correct, target: a.targetSec, n: i + 1 }; });
+
+    function drawChart() {
+      var canvas = el('time-chart');
+      var box = el('chart-box');
+      var empty = el('chart-empty');
+      if (!chartData.length) { empty.style.display = 'block'; box.style.display = 'none'; return; }
+      empty.style.display = 'none'; box.style.display = 'block';
+
+      var W = Math.max(box.clientWidth - 28, 320);
+      var H = 260;
+      var dpr = window.devicePixelRatio || 1;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      var ctx = canvas.getContext('2d');
+      if (!ctx) return;   // no canvas support — KPIs still work
+      ctx.scale(dpr, dpr);
+
+      var padL = 42, padR = 14, padT = 16, padB = 30;
+      var maxT = Math.max(60, Math.ceil(Math.max.apply(null, chartData.map(function (d) { return Math.max(d.t, d.target); })) / 30) * 30);
+      var x = function (i) { return padL + (i / Math.max(1, chartData.length - 1)) * (W - padL - padR); };
+      var y = function (t) { return padT + (1 - t / maxT) * (H - padT - padB); };
+
+      ctx.clearRect(0, 0, W, H);
+
+      /* grid */
+      ctx.strokeStyle = 'rgba(43,38,32,.1)'; ctx.lineWidth = 1;
+      ctx.fillStyle = 'rgba(43,38,32,.55)'; ctx.font = '11px "Space Mono", monospace';
+      var steps = 4;
+      for (var g = 0; g <= steps; g++) {
+        var tt = (maxT / steps) * g;
+        var yy = y(tt);
+        ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W - padR, yy); ctx.stroke();
+        ctx.fillText(OC.fmtTime(Math.round(tt)), 4, yy + 4);
+      }
+
+      /* target line (avg target) */
+      var avgTarget = chartData.reduce(function (s, d) { return s + d.target; }, 0) / chartData.length;
+      if (avgTarget <= maxT) {
+        ctx.strokeStyle = 'rgba(180,83,9,.75)'; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(padL, y(avgTarget)); ctx.lineTo(W - padR, y(avgTarget)); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(180,83,9,1)';
+        ctx.fillText('target ' + OC.fmtTime(Math.round(avgTarget)), W - padR - 96, y(avgTarget) - 6);
+      }
+
+      /* trend line (simple moving regression) */
+      if (chartData.length >= 2) {
+        var n = chartData.length;
+        var sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+        chartData.forEach(function (d, i) { sumX += i; sumY += d.t; sumXY += i * d.t; sumXX += i * i; });
+        var slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX || 1);
+        var intercept = (sumY - slope * sumX) / n;
+        var c1 = intercept, c2 = slope * (n - 1) + intercept;
+        ctx.strokeStyle = 'rgba(194,65,12,.45)'; ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.moveTo(x(0), Math.min(Math.max(y(c1), padT), H - padB)); ctx.lineTo(x(n - 1), Math.min(Math.max(y(c2), padT), H - padB)); ctx.stroke();
+      }
+
+      /* dots */
+      chartData.forEach(function (d, i) {
+        ctx.beginPath();
+        ctx.arc(x(i), y(d.t), 6, 0, Math.PI * 2);
+        ctx.fillStyle = d.ok ? '#047857' : '#b45309';
+        ctx.fill();
+        ctx.strokeStyle = '#fffdf7'; ctx.lineWidth = 2; ctx.stroke();
+      });
+
+      /* x labels */
+      ctx.fillStyle = 'rgba(43,38,32,.55)';
+      chartData.forEach(function (d, i) {
+        if (chartData.length <= 12 || i % Math.ceil(chartData.length / 10) === 0 || i === chartData.length - 1) {
+          ctx.fillText('#' + d.n, x(i) - 8, H - 10);
+        }
+      });
+    }
+
+    /* ---------- skill bars ---------- */
+    function bestDrill(drill) {
+      var best = 0;
+      S.attempts.forEach(function (a) { if (a.kind === 'drill' && a.drill === drill) best = Math.max(best, a.correct); });
+      return best;
+    }
+    var solvedWordIds = {};
+    wordsCorrect.forEach(function (a) { solvedWordIds[a.id] = true; });
+    var skillData = [
+      { name: 'Word Problems (13 in bank)', val: Object.keys(solvedWordIds).length, max: 13, cls: '' },
+      { name: 'Lightning Multiplication', val: bestDrill('fast-mult'), max: 10, cls: 'pbar__fill--teal' },
+      { name: 'Divisibility Detective', val: bestDrill('divis'), max: 10, cls: 'pbar__fill--teal' },
+      { name: 'Prime Patrol', val: bestDrill('prime'), max: 10, cls: 'pbar__fill--teal' },
+      { name: 'Mixed Sprint', val: bestDrill('mixed'), max: 10, cls: 'pbar__fill--teal' }
+    ];
+    var skillHtml = '';
+    skillData.forEach(function (s) {
+      skillHtml += '<div class="skill-row"><div class="skill-row__top"><span>' + s.name + '</span><span style="font-family:var(--font-mono);">' + s.val + ' / ' + s.max + '</span></div>' +
+        '<div class="pbar"><div class="pbar__fill ' + s.cls + '" style="width:' + Math.round(100 * s.val / s.max) + '%;"></div></div></div>';
+    });
+    el('skill-list').innerHTML = skillHtml;
+
+    /* ---------- badges ---------- */
+    var icons = { first: '🎬', equation5: '🧮', fast: '🎯', lightning: '⚡', divisible: '🔍', prime: '🛡️', perfect: '🏆', streak3: '🔥', journal5: '📓', champ500: '👑' };
+    var badgeHtml = '';
+    OC.BADGES.forEach(function (b) {
+      var earned = !!S.badges[b.id];
+      badgeHtml += '<div class="badge-card ' + (earned ? 'is-earned' : 'is-locked') + '">' +
+        '<div class="badge-card__icon">' + (icons[b.id] || '⭐') + '</div>' +
+        '<div class="badge-card__name">' + b.name + '</div>' +
+        '<div class="badge-card__desc">' + b.desc + '</div>' +
+        (earned ? '<div class="tag tag--amber" style="margin-top:6px;">' + OC.fmtDate(S.badges[b.id]) + '</div>' : '') +
+        '</div>';
+    });
+    el('badge-grid').innerHTML = badgeHtml;
+
+    /* ---------- journal ---------- */
+    var jHtml = '';
+    if (!S.journal.length) {
+      jHtml = '<div class="empty-note"><b>Journal is empty</b>After each word problem, write down one thing you learned. Future-you will be grateful.</div>';
+    } else {
+      S.journal.slice().reverse().forEach(function (j) {
+        jHtml += '<div class="callout callout--teal" style="margin:10px 0;"><h4>' + OC.esc(j.problemTitle) + ' <span class="timer-target">' + OC.fmtDate(j.ts) + '</span></h4><p style="margin:0;">' + OC.esc(j.note) + '</p></div>';
+      });
+    }
+    el('journal-list').innerHTML = jHtml;
+
+    /* ---------- history ---------- */
+    var rows = '';
+    S.attempts.slice(-15).reverse().forEach(function (a) {
+      var activity = a.kind === 'word'
+        ? 'Word Problem: ' + OC.esc(a.title || '')
+        : 'Drill: ' + OC.esc(a.title || a.drill || '');
+      var result = a.kind === 'word'
+        ? (a.correct ? '<span class="tag tag--green">correct</span>' : '<span class="tag tag--red">revisit</span>')
+        : (a.correct >= 8 ? '<span class="tag tag--green">' + a.correct + '/' + a.total + '</span>' : '<span class="tag tag--amber">' + a.correct + '/' + a.total + '</span>');
+      var vs = a.kind === 'word'
+        ? (a.timeSec < a.targetSec ? '<span style="color:var(--green); font-weight:700;">−' + (a.targetSec - a.timeSec) + 's</span>' : '<span style="color:var(--amber); font-weight:700;">+' + (a.timeSec - a.targetSec) + 's</span>')
+        : '–';
+      rows += '<tr><td>' + OC.fmtDate(a.ts) + '</td><td>' + activity + '</td><td>' + result + '</td><td class="num">' + OC.fmtTime(a.timeSec) + '</td><td class="num">' + vs + '</td><td class="num">+' + a.xp + '</td></tr>';
+    });
+    if (!rows) rows = '<tr><td colspan="6" class="empty-note" style="padding:26px;"><b>Nothing logged yet</b>Your training log fills up as you practise — head to the Word Problem Lab or Speed Lab.</td></tr>';
+    el('history-body').innerHTML = rows;
+
+    /* ---------- reset ---------- */
+    el('reset-btn').addEventListener('click', function () {
+      var okMsg = 'Really reset ALL progress? This erases XP, badges, journal and history from this browser. OK to continue?';
+      if (window.confirm(okMsg)) {
+        localStorage.removeItem('oc_state');
+        location.reload();
+      }
+    });
+
+    drawChart();
+    window.addEventListener('resize', drawChart);
+  })();
+  </script>
+</body>
+</html>

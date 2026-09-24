@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Olympiad Champ — Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topnav" id="topnav"></header>
+
+  <section class="hero fade-in">
+    <p class="hero__hello" id="hero-hello">HELLO, FUTURE OLYMPIAN</p>
+    <h1 class="hero__title">Every maths champion<br>started exactly <em>here</em>.</h1>
+    <p class="hero__sub">
+      Word problems feel like puzzles in a secret language — but you're about to learn
+      to crack that code, one equation at a time. Slow is smooth, smooth is fast.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <a class="btn btn--primary" href="word-problems.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Start today's problem</a>
+      <a class="btn btn--ghost" href="speed-lab.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+        Speed drills</a>
+    </div>
+  </section>
+
+  <main class="wrap">
+
+    <!-- ============ name card ============ -->
+    <section class="card card--hero fade-in" style="--i:1; display:flex; gap:22px; align-items:center; flex-wrap:wrap; margin-bottom:34px;">
+      <div style="flex:1 1 340px; min-width:0;">
+        <p class="section-label">Your journey starts now</p>
+        <h2 style="font-family:var(--font-display); font-size:26px; margin:0 0 8px;">What should I call you, champion?</h2>
+        <p class="muted" style="margin:0 0 14px; font-size:15px;">Your name goes on this logbook. Everything you do here is saved on this computer only — just for you.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <input type="text" id="name-input" placeholder="Type your name…" style="max-width:260px;" maxlength="20">
+          <button class="btn btn--teal" id="name-save" type="button">That's me!</button>
+        </div>
+      </div>
+      <div style="flex:0 1 300px; min-width:250px;" id="hero-progress">
+        <div class="kpi-row">
+          <div class="kpi"><div class="kpi__value" id="hp-xp">0</div><div class="kpi__label">Total XP</div></div>
+          <div class="kpi"><div class="kpi__value" id="hp-level">Rookie</div><div class="kpi__label">Your Rank</div></div>
+        </div>
+        <div style="margin-top:12px; padding-bottom:6px;">
+          <div class="pbar"><div class="pbar__fill" id="hp-bar"></div></div>
+          <p class="timer-target" style="margin:8px 0 2px;" id="hp-next">Next rank: Explorer at 120 XP</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ why you struggle = reframe ============ -->
+    <section class="fade-in" style="--i:2; margin-bottom:40px;">
+      <p class="section-label">Read this first — it matters</p>
+      <div class="compare">
+        <div class="compare__panel">
+          <div class="compare__head compare__head--me">The voice that holds you back</div>
+          <div class="compare__body" style="font-style:italic;">
+            "Word problems are too hard."<br>
+            "I can't find what the question is asking."<br>
+            "I'm just slow at maths."<br>
+            "I always make silly mistakes."
+          </div>
+        </div>
+        <div class="compare__panel">
+          <div class="compare__head compare__head--champ">What is actually true</div>
+          <div class="compare__body">
+            Word problems are stories — and every story hides numbers you can catch.<br>
+            Nobody is "bad at maths" — you just haven't been shown the <b>steps</b> yet.<br>
+            Fast calculation is a <b>trick</b>, not a talent — every trick can be learned.<br>
+            Every mistake tells you exactly what to fix. That's a superpower.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider">✦ ✦ ✦</div>
+
+    <!-- ============ missions ============ -->
+    <section class="fade-in" style="--i:3; margin-bottom:44px;">
+      <p class="section-label">Your training grounds</p>
+      <div class="grid" id="mission-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px;">
+
+        <a class="card card--elevated card--accent" href="word-problems.html" style="text-decoration:none; color:inherit; display:block;">
+          <span class="tag">Mission 1</span>
+          <h3 style="font-family:var(--font-display); font-size:21px; margin:10px 0 6px;">Word Problem Lab</h3>
+          <p class="muted" style="margin:0 0 10px; font-size:14.5px;">Turn any story into an equation in 3 steps: Understand, Plan, Solve. Compare your thinking with a champion's method.</p>
+          <span class="stat-strip"><span id="m-word">0 solved</span></span>
+        </a>
+
+        <a class="card card--elevated card--teal" href="speed-lab.html" style="text-decoration:none; color:inherit; display:block;">
+          <span class="tag tag--teal">Mission 2</span>
+          <h3 style="font-family:var(--font-display); font-size:21px; margin:10px 0 6px;">Speed Lab</h3>
+          <p class="muted" style="margin:0 0 10px; font-size:14.5px;">Lightning multiplication, divisibility detective work and prime-number patrol — beat the clock, grow your streak.</p>
+          <span class="stat-strip"><span id="m-speed">0 drills done</span></span>
+        </a>
+
+        <a class="card card--elevated card--amber" href="toolbox.html" style="text-decoration:none; color:inherit; display:block;">
+          <span class="tag tag--amber">Mission 3</span>
+          <h3 style="font-family:var(--font-display); font-size:21px; margin:10px 0 6px;">Champion's Toolbox</h3>
+          <p class="muted" style="margin:0 0 10px; font-size:14.5px;">Every rule on one page: divisibility, primes, calculation shortcuts and the word-problem translator. Peek any time.</p>
+          <span class="stat-strip"><span>Always open</span></span>
+        </a>
+
+        <a class="card card--elevated" href="dashboard.html" style="text-decoration:none; color:inherit; display:block; border-top:4px solid var(--ink);">
+          <span class="tag" style="background:var(--red-dim); color:var(--red);">Mission 4</span>
+          <h3 style="font-family:var(--font-display); font-size:21px; margin:10px 0 6px;">My Dashboard</h3>
+          <p class="muted" style="margin:0 0 10px; font-size:14.5px;">Watch your time come down, your accuracy climb, and badges pile up. Proof of how far you've come.</p>
+          <span class="stat-strip"><span id="m-dash">0 XP</span></span>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ============ how it works ============ -->
+    <section class="card card--recessed fade-in" style="--i:4; margin-bottom:44px;">
+      <p class="section-label section-label--teal">How a champion solves a word problem</p>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px;">
+        <div>
+          <div style="font-family:var(--font-mono); font-weight:700; font-size:22px; color:var(--accent);">1</div>
+          <b>Understand</b>
+          <p class="muted small" style="margin:4px 0 0;">Underline the numbers and facts hiding in the story. Ask: what is <i>given</i>, what is <i>asked</i>?</p>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono); font-weight:700; font-size:22px; color:var(--accent);">2</div>
+          <b>Plan</b>
+          <p class="muted small" style="margin:4px 0 0;">Choose an unknown, call it <i>x</i>, and translate the words into one equation.</p>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono); font-weight:700; font-size:22px; color:var(--accent);">3</div>
+          <b>Solve</b>
+          <p class="muted small" style="margin:4px 0 0;">Undo the operations step by step, gently, like opening a lock.</p>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono); font-weight:700; font-size:22px; color:var(--accent);">4</div>
+          <b>Check</b>
+          <p class="muted small" style="margin:4px 0 0;">Put your answer back into the story. Does it make sense? Champions always check.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ daily challenge ============ -->
+    <section class="card card--elevated fade-in" style="--i:5; margin-bottom:20px;">
+      <p class="section-label section-label--amber">Brain warm-up of the day</p>
+      <div style="display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;">
+        <p id="daily-q" style="flex:1 1 380px; font-size:17.5px; margin:0; font-weight:700;"></p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn--small btn--ghost" id="daily-reveal" type="button">Show answer</button>
+        </div>
+      </div>
+      <div class="callout callout--green" id="daily-a" style="display:none;"></div>
+    </section>
+
+    <!-- ============ legends ============ -->
+    <section class="fade-in" style="--i:6; margin-top:40px;">
+      <p class="section-label">Legends who were once beginners too</p>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;">
+
+        <div class="card">
+          <span class="tag tag--amber">India · 1887–1920</span>
+          <h3 style="font-family:var(--font-display); font-size:19px; margin:10px 0 6px;">Srinivasa Ramanujan</h3>
+          <p class="small" style="margin:0;">As a boy in Kumbakonam he loved numbers so much he filled notebooks with them — mostly on his own. One day in London he was ill, and his friend Hardy visited and mentioned his taxi number, <b>1729</b>, seemed dull. Ramanujan sat up at once: "No! It is a very interesting number — it is the smallest number expressible as the sum of two cubes in two different ways." He saw beauty in a taxi number. Numbers hide secrets — you just need to look closer.</p>
+        </div>
+
+        <div class="card">
+          <span class="tag tag--teal">India · 1929–2013</span>
+          <h3 style="font-family:var(--font-display); font-size:19px; margin:10px 0 6px;">Shakuntala Devi</h3>
+          <p class="small" style="margin:0;">The "Human Computer" of Bengaluru could multiply two 13-digit numbers in her head faster than a machine. Was she born with it? She said her gift came from <b>practice and fascination</b>, doing shows from age 6 and exploring numbers every single day. Fast calculation is trained, not inherited — exactly what the Speed Lab is for.</p>
+        </div>
+
+        <div class="card">
+          <span class="tag tag--green">For you · today</span>
+          <h3 style="font-family:var(--font-display); font-size:19px; margin:10px 0 6px;">The boy reading this page</h3>
+          <p class="small" style="margin:0;">Struggling doesn't mean you're behind — it means your brain is <b>growing</b>. Scientists found that the moments you feel stuck are the exact moments your brain builds new connections. Every wrong answer you understand today is a problem you'll smash tomorrow.</p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <q>An equation for me has no meaning unless it expresses a thought of God.</q> — Srinivasa Ramanujan<br>
+    Olympiad Champ · your personal training log · all progress saved on this computer
+  </footer>
+
+  <script src="assets/app.js"></script>
+  <script>
+  (function () {
+    OC.buildNav('home');
+    var S = OC.STATE;
+
+    /* name card */
+    var nameInput = OC.$('#name-input');
+    function applyName() {
+      var n = (S.name || '').trim();
+      var hello = OC.$('#hero-hello');
+      if (n) hello.textContent = 'HELLO, ' + n.toUpperCase() + ' — FUTURE OLYMPIAN';
+    }
+    applyName();
+    OC.$('#name-save').addEventListener('click', function () {
+      var v = nameInput.value.trim();
+      if (!v) return;
+      S.name = v;
+      OC.save();
+      applyName();
+      nameInput.blur();
+    });
+    nameInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') OC.$('#name-save').click(); });
+
+    /* progress snapshot */
+    var lv = OC.levelOf(S.xp);
+    OC.$('#hp-xp').textContent = S.xp;
+    OC.$('#hp-level').textContent = lv.level.name;
+    OC.$('#hp-bar').style.width = lv.pct + '%';
+    OC.$('#hp-next').textContent = lv.next
+      ? 'Next rank: ' + lv.next.name + ' at ' + lv.next.min + ' XP — only ' + (lv.next.min - S.xp) + ' to go!'
+      : 'Highest rank achieved. Legendary!';
+
+    var words = S.attempts.filter(function (a) { return a.kind === 'word'; }).length;
+    var drills = S.attempts.filter(function (a) { return a.kind === 'drill'; }).length;
+    OC.$('#m-word').textContent = words + ' attempted · ' + S.attempts.filter(function (a) { return a.kind === 'word' && a.correct; }).length + ' correct';
+    OC.$('#m-speed').textContent = drills + ' drills done';
+    OC.$('#m-dash').textContent = S.xp + ' XP · ' + (S.streak.count || 0) + '-day streak';
+
+    /* daily challenge — deterministic by date */
+    var DAILY = [
+      { q: 'A snail climbs up a 10-metre wall. Each day it climbs 3 m but slips back 2 m at night. On which day does it reach the top?', a: 'Day 8. Each full day-night cycle gains 1 m (climb 3, slip 2). After 7 cycles it is at 7 m. On day 8 it climbs 3 m — 7 + 3 = 10 — and it is out, so it does not slip back. The trick: on the LAST day there is no slip!' },
+      { q: 'Using each of the digits 1, 2, 3 and 4 exactly once, and only + or − signs, can you make the number 10?', a: 'Yes — and the answer hides in plain sight: 1 + 2 + 3 + 4 = 10. Champions always try the simple path first before hunting for clever ones!' },
+      { q: 'I am a two-digit number. My digits add up to 9. When you reverse my digits, the new number is 27 less than me. Who am I?', a: 'Digits a + b = 9. Reversed number is 27 less, so (10a + b) − (10b + a) = 27, giving 9(a − b) = 27, so a − b = 3. Then a = 6, b = 3. The number is 63 — reverse 36, and indeed 63 − 36 = 27.' },
+      { q: 'How many times does the digit 7 appear when you write all numbers from 1 to 100?', a: '20 times. Units place: 7, 17, 27 … 97 — that is 10 times. Tens place: 70, 71, 72 … 79 — another 10. Total 10 + 10 = 20. Careful counting beats fast guessing!' },
+      { q: 'Three friends split a restaurant bill of ₹750 equally. Then one friend pays for everyone and the others pay him back. How much does each of the other two owe him?', a: 'Each share is 750 ÷ 3 = ₹250. The paying friend already spent his own ₹250, so each friend owes him exactly ₹250. Equal sharing is just division hiding inside a story.' }
+    ];
+    var dayIndex = Math.floor(Date.now() / 86400000) % DAILY.length;
+    var today = DAILY[dayIndex];
+    OC.$('#daily-q').textContent = today.q;
+    var revealBtn = OC.$('#daily-reveal');
+    var ansBox = OC.$('#daily-a');
+    revealBtn.addEventListener('click', function () {
+      if (ansBox.style.display === 'none') {
+        ansBox.innerHTML = '<h4>Answer</h4><p style="margin:0;">' + today.a + '</p>';
+        ansBox.style.display = 'block';
+        revealBtn.textContent = 'Hide answer';
+      } else {
+        ansBox.style.display = 'none';
+        revealBtn.textContent = 'Show answer';
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

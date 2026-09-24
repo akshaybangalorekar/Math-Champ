@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Champion's Toolbox — Olympiad Champ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .prime-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px; }
+    .prime-cell {
+      font-family: var(--font-mono); font-weight: 700; font-size: 14px; text-align: center;
+      border: 1.5px solid var(--border-bright); border-radius: 8px; padding: 7px 0;
+      background: var(--surface);
+    }
+    .prime-cell.is-prime { background: var(--green-dim); color: var(--green); border-color: var(--green); }
+    .flow-box {
+      border: 2px dashed var(--border-bright); border-radius: 12px; padding: 14px 18px;
+      background: var(--surface-2); font-size: 15px;
+    }
+    .arrow-down { text-align: center; color: var(--ink-dim); font-size: 20px; margin: 4px 0; }
+    .fx { font-family: var(--font-mono); font-weight: 700; background: var(--teal-dim); color: var(--teal); padding: 1px 7px; border-radius: 6px; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <header class="topnav" id="topnav"></header>
+
+  <main class="wrap">
+    <p class="section-label">Mission 3 · The Champion's Toolbox</p>
+    <h1 style="font-family:var(--font-display); font-size:clamp(30px,4.5vw,42px); margin:0 0 8px;">Every rule. One page. Zero fear.</h1>
+    <p class="muted" style="max-width:680px; margin:0 0 26px;">
+      Olympiad champions don't memorise more — they keep a small, sharp toolkit and know exactly when to reach for each tool.
+      Bookmark this page; peek at it any time, even mid-problem.
+    </p>
+
+    <!-- ============ word problem translator ============ -->
+    <section class="card card--elevated card--accent fade-in" style="margin-bottom:26px;">
+      <p class="section-label">Tool 1 · The word-problem translator</p>
+      <p style="margin:0 0 16px;">
+        English and maths are two languages. This is the dictionary. When a word problem confuses you,
+        find the phrase below and translate it.
+      </p>
+      <div class="table-wrap"><div class="table-scroll">
+        <table class="data">
+          <thead><tr><th>Words you see</th><th>Maths you write</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>sum, total, altogether, combined</td><td><b>+</b> (add)</td><td>"total of 84 marbles" → r + b = 84</td></tr>
+            <tr><td>difference, how many more, left, remaining</td><td><b>−</b> (subtract)</td><td>"12 more red than blue" → r = b + 12</td></tr>
+            <tr><td>each, per, every, groups of, twice</td><td><b>×</b> (multiply)</td><td>"twice Meera's age" → 2 × m</td></tr>
+            <tr><td>shared equally, split, ratio parts</td><td><b>÷</b> (divide)</td><td>"split ₹750 equally" → 750 ÷ 3</td></tr>
+            <tr><td>is, was, will be, results in</td><td><b>=</b> (equals)</td><td>"the total is 37" → … = 37</td></tr>
+            <tr><td>more than</td><td><b>+ after the thing</b></td><td>"4 more than m" → m + 4 <b>not</b> 4 + m first!</td></tr>
+            <tr><td>less than</td><td><b>subtract from it</b></td><td>"5 less than x" → x − 5</td></tr>
+            <tr><td>times as old/heavy as</td><td><b>×</b></td><td>"7 times as old as Vikram" → 7 × v</td></tr>
+            <tr><td>per cent of</td><td><b>÷ 100 ×</b></td><td>"24% of 250" → 250 × 24 ÷ 100</td></tr>
+          </tbody>
+        </table>
+      </div></div>
+      <div class="flow-box" style="margin-top:16px;">
+        <b>Worked translation:</b> "Rohan is 4 years older than twice Meera's age. Rohan is 16."
+        <div class="arrow-down">↓</div>
+        "twice Meera's age" → <span class="fx">2 × m</span> &nbsp; "4 years older than that" → <span class="fx">2 × m + 4</span> &nbsp; "Rohan is 16" → <span class="fx">2m + 4 = 16</span> ✔
+      </div>
+      <div class="callout callout--teal" style="margin-bottom:0;">
+        <b>The golden move:</b> always give the unknown a letter first (x, m, p — anything), then translate the story sentence by sentence into that letter. The equation writes itself.
+      </div>
+    </section>
+
+    <!-- ============ divisibility rules ============ -->
+    <section class="card card--elevated card--teal fade-in" style="margin-bottom:26px;">
+      <p class="section-label section-label--teal">Tool 2 · Divisibility rules</p>
+      <div class="table-wrap"><div class="table-scroll">
+        <table class="data">
+          <thead><tr><th>Divisible by</th><th>The rule</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><b>2</b></td><td>Last digit is even (0, 2, 4, 6, 8)</td><td>58 → 8 is even → yes</td></tr>
+            <tr><td><b>3</b></td><td>Sum of digits is divisible by 3</td><td>471 → 4+7+1 = 12 → 12 ÷ 3 → yes</td></tr>
+            <tr><td><b>4</b></td><td>Last two digits form a number divisible by 4</td><td>31,716 → 16 ÷ 4 → yes</td></tr>
+            <tr><td><b>5</b></td><td>Last digit is 0 or 5</td><td>985 → ends in 5 → yes</td></tr>
+            <tr><td><b>6</b></td><td>Divisible by BOTH 2 and 3</td><td>342: even, and 3+4+2=9 → yes</td></tr>
+            <tr><td><b>7</b></td><td>No easy rule — just divide (or double the last digit and subtract: 343 → 34 − 6 = 28 → yes)</td><td>343 → 28 ÷ 7 → yes</td></tr>
+            <tr><td><b>8</b></td><td>Last three digits form a number divisible by 8</td><td>59,264 → 264 ÷ 8 = 33 → yes</td></tr>
+            <tr><td><b>9</b></td><td>Sum of digits is divisible by 9 (and then also by 3!)</td><td>8,372 → 8+3+7+2 = 18 → yes</td></tr>
+            <tr><td><b>10</b></td><td>Ends in 0</td><td>4,560 → yes</td></tr>
+            <tr><td><b>11</b></td><td>Alternating sum of digits is 0 or a multiple of 11</td><td>2,728 → 2−7+2−8 = −11 → yes</td></tr>
+          </tbody>
+        </table>
+      </div></div>
+      <div class="callout callout--teal" style="margin-bottom:0;">
+        <b>Why digit sums work for 3 and 9:</b> 10 is 1 more than 9, so every group of ten "leaks" exactly 1 into the digit sum. That is why only the digits matter for 3 and 9 — and why the trick fails for 8, where 10 does not leak a multiple of 8. Rules you understand beat rules you memorise.
+      </div>
+    </section>
+
+    <!-- ============ primes ============ -->
+    <section class="card card--elevated card--amber fade-in" style="margin-bottom:26px;">
+      <p class="section-label section-label--amber">Tool 3 · Prime numbers — the atoms of maths</p>
+
+      <p style="margin:0 0 6px;"><b>What is a prime?</b> A number with exactly <b>two</b> factors: 1 and itself. 7 = 1 × 7 only → prime. 9 = 3 × 3 → not prime.</p>
+      <p style="margin:0 0 16px;" class="small muted">Careful: <b>1 is NOT prime</b> (it has only one factor), and <b>2 is the only even prime</b>.</p>
+
+      <p class="field-label" style="color:var(--amber);">The primes up to 50 — know these by heart</p>
+      <div class="prime-grid" style="margin-bottom:18px;">
+        <span class="prime-cell is-prime">2</span><span class="prime-cell">3</span><span class="prime-cell is-prime">5</span><span class="prime-cell">7</span><span class="prime-cell">9</span>
+        <span class="prime-cell">11</span><span class="prime-cell is-prime">13</span><span class="prime-cell">15</span><span class="prime-cell">17</span><span class="prime-cell">19</span>
+        <span class="prime-cell">21</span><span class="prime-cell">23</span><span class="prime-cell">25</span><span class="prime-cell">27</span><span class="prime-cell">29</span>
+        <span class="prime-cell">31</span><span class="prime-cell">33</span><span class="prime-cell">35</span><span class="prime-cell">37</span><span class="prime-cell">39</span>
+        <span class="prime-cell">41</span><span class="prime-cell">43</span><span class="prime-cell">45</span><span class="prime-cell">47</span><span class="prime-cell">49</span>
+      </div>
+      <p class="small muted" style="margin:0 0 18px;">(Green = prime. Notice: after 2, every prime is odd — but most odd numbers are not prime!)</p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;" class="prime-grid-2col">
+        <div class="flow-box">
+          <b>The square-root test — is 91 prime?</b>
+          <div class="arrow-down">↓</div>
+          √91 ≈ 9.5 → only test primes up to 9: that is 2, 3, 5, 7.<br>
+          91 is odd, digit sum 10 (not ÷3), doesn't end in 0/5…<br>
+          but <span class="fx">91 = 7 × 13</span>. <b>Not prime!</b>
+          <div class="small muted" style="margin-top:8px;">If a number has any factor, one factor must be ≤ its square root — so testing up to √n is enough. That saves half the work.</div>
+        </div>
+        <div class="flow-box">
+          <b>Famous trap numbers — the "looks prime but isn't" gang</b>
+          <div style="margin-top:8px; font-family:var(--font-mono); font-size:14px; line-height:2;">
+            51 = 3 × 17 &nbsp;·&nbsp; 57 = 3 × 19<br>
+            87 = 3 × 29 &nbsp;·&nbsp; 91 = 7 × 13<br>
+            119 = 7 × 17 &nbsp;·&nbsp; 143 = 11 × 13<br>
+            187 = 11 × 17 &nbsp;·&nbsp; 209 = 11 × 19
+          </div>
+          <div class="small muted" style="margin-top:8px;">None end in 0/2/5 and none have digit sums divisible by 3 — they LOOK prime. Test 7 and 11 before believing them.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ fast calculation ============ -->
+    <section class="card card--elevated fade-in" style="margin-bottom:26px;">
+      <p class="section-label">Tool 4 · Lightning calculation tricks</p>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px;">
+
+        <div class="card card--recessed">
+          <span class="tag">×11 magic</span>
+          <p style="margin:10px 0 6px;"><b>34 × 11</b></p>
+          <p class="small" style="margin:0;">Split 3 _ 4 and drop the digit-sum 3+4=7 in the middle: <b>374</b>.<br>Carry if the sum exceeds 9: 87 × 11 → 8_(15)_7 → 8+1=9, 5 → <b>957</b>.</p>
+        </div>
+
+        <div class="card card--recessed">
+          <span class="tag tag--teal">×5, ×50</span>
+          <p style="margin:10px 0 6px;"><b>86 × 5</b></p>
+          <p class="small" style="margin:0;">×10 then halve: 860 ÷ 2 = <b>430</b>.<br>For ×50: ×100 then halve: 86 × 50 = 8600 ÷ 2 = <b>4300</b>.</p>
+        </div>
+
+        <div class="card card--recessed">
+          <span class="tag tag--amber">×25</span>
+          <p style="margin:10px 0 6px;"><b>28 × 25</b></p>
+          <p class="small" style="margin:0;">25 is a quarter of 100: ×100 then ÷4 → 2800 ÷ 4 = <b>700</b>.<br>Handy ÷4 trick: halve twice (2800 → 1400 → 700).</p>
+        </div>
+
+        <div class="card card--recessed">
+          <span class="tag tag--green">×9, ×99</span>
+          <p style="margin:10px 0 6px;"><b>47 × 99</b></p>
+          <p class="small" style="margin:0;">One less than ×100: 4700 − 47 = <b>4653</b>.<br>Same idea for 9: 47 × 9 = 470 − 47 = <b>423</b>.</p>
+        </div>
+
+        <div class="card card--recessed">
+          <span class="tag">squares ending in 5</span>
+          <p style="margin:10px 0 6px;"><b>75 × 75</b></p>
+          <p class="small" style="margin:0;">Take 7 × (7+1) = 56, stick 25 after it: <b>5625</b>.<br>Works for every number ending in 5: 45² = 2025, 95² = 9025.</p>
+        </div>
+
+        <div class="card card--recessed">
+          <span class="tag tag--teal">difference of squares</span>
+          <p style="margin:10px 0 6px;"><b>48 × 52</b></p>
+          <p class="small" style="margin:0;">Numbers equally spaced around 50: 50² − 2² = 2500 − 4 = <b>2496</b>.<br>Pattern: (a−b)(a+b) = a² − b². Magic for near-round products.</p>
+        </div>
+
+      </div>
+      <div class="callout callout--amber" style="margin:16px 0 0;">
+        <b>Train in the Speed Lab:</b> knowing a trick and owning it are different — ten timed repetitions is what moves it into your fingers. <a href="speed-lab.html" style="color:var(--amber); font-weight:800;">Open the Speed Lab</a>.
+      </div>
+    </section>
+
+    <!-- ============ the 4-step method ============ -->
+    <section class="card card--elevated card--accent fade-in">
+      <p class="section-label">Tool 5 · The champion's four steps (never skip #4)</p>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px;">
+        <div class="flow-box"><b>1 · Understand</b><p class="small muted" style="margin:6px 0 0;">List every fact. Circle the numbers. Underline the question. If you can't say what's given, you're not ready for step 2.</p></div>
+        <div class="flow-box"><b>2 · Plan</b><p class="small muted" style="margin:6px 0 0;">Name the unknown x. Translate sentences into maths using the dictionary above. One equation = one lock.</p></div>
+        <div class="flow-box"><b>3 · Solve</b><p class="small muted" style="margin:6px 0 0;">Undo operations in reverse order. Small, careful moves beat one big leap. Write every step — olympiad marks live in steps.</p></div>
+        <div class="flow-box"><b>4 · Check</b><p class="small muted" style="margin:6px 0 0;">Put your answer back into the story. Is it sensible? Can Meera be 60 years old when Rohan is 16? No — fix it.</p></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    Olympiad Champ · Champion's Toolbox · "Rules you understand beat rules you memorise."
+  </footer>
+
+  <script src="assets/app.js"></script>
+  <script>
+  (function () {
+    OC.buildNav('toolbox');
+  })();
+  </script>
+</body>
+</html>

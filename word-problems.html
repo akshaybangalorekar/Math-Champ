@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Problem Lab — Olympiad Champ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .stage { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden; margin-top: 16px; }
+    .stage__head {
+      display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+      background: var(--surface-2); border-bottom: 1px solid var(--border);
+    }
+    .stage__num {
+      width: 34px; height: 34px; border-radius: 50%; flex: 0 0 34px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-weight: 800; font-size: 17px; color: #fff;
+      background: var(--accent);
+    }
+    .stage__num--done { background: var(--green); }
+    .stage__title { font-family: var(--font-display); font-weight: 800; font-size: 18px; }
+    .stage__body { padding: 18px; }
+    .stage.is-locked .stage__body { display: none; }
+    .stage.is-locked { opacity: 0.55; }
+    .field-label { font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--teal); margin: 0 0 6px; }
+    .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 700;
+      border: 2px solid var(--border-bright); background: var(--surface);
+      color: var(--ink-dim); padding: 6px 12px; border-radius: 999px; cursor: pointer;
+      transition: all .12s ease;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent); }
+    .chip.is-active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .chip .solved-dot { color: var(--green); }
+    .banner { border-radius: 12px; padding: 18px 20px; margin-top: 18px; animation: fadeScale .4s ease-out both; }
+    .banner--win { background: var(--green-dim); border: 2px solid var(--green); }
+    .banner--lose { background: var(--amber-dim); border: 2px solid var(--amber); }
+    .banner h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 21px; }
+    .answer-box { font-family: var(--font-mono); font-size: 26px; font-weight: 700; text-align: center; letter-spacing: 1px; }
+    .confidence-btn { width: 100%; text-align: left; }
+    .confidence-btn.is-picked { border-color: var(--teal); background: var(--teal-dim); color: var(--teal); }
+    .star-row { display: inline-flex; gap: 4px; }
+  </style>
+</head>
+<body>
+  <header class="topnav" id="topnav"></header>
+
+  <main class="wrap">
+    <p class="section-label">Mission 1 · Word Problem Lab</p>
+    <h1 style="font-family:var(--font-display); font-size:clamp(30px,4.5vw,42px); margin:0 0 8px;">Crack the story. Build the equation.</h1>
+    <p class="muted" style="max-width:680px; margin:0 0 22px;">
+      Every word problem is a story with numbers hiding inside. Your job: catch the numbers,
+      find the question, write ONE equation — then solve it. Compare your thinking with the
+      champion's method and watch your time drop.
+    </p>
+
+    <!-- problem picker -->
+    <div class="card card--recessed" style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+        <span class="field-label" style="margin:0;">Choose a problem</span>
+        <span class="chip-row" id="level-chips">
+          <button class="chip is-active" data-level="all" type="button">All levels</button>
+          <button class="chip" data-level="1" type="button">Level 1 · Warm-up</button>
+          <button class="chip" data-level="2" type="button">Level 2 · Training</button>
+          <button class="chip" data-level="3" type="button">Level 3 · Olympian</button>
+        </span>
+        <button class="btn btn--small btn--ghost" id="random-btn" type="button" style="margin-left:auto;">Surprise me</button>
+      </div>
+      <div class="chip-row" id="problem-chips" style="margin-top:12px;"></div>
+    </div>
+
+    <!-- problem -->
+    <section class="card card--elevated card--accent" id="problem-card">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
+        <span class="tag" id="p-level"></span>
+        <span class="tag tag--teal" id="p-chapter"></span>
+        <span style="margin-left:auto;" class="timer-target" id="p-solved-state"></span>
+      </div>
+      <h2 style="font-family:var(--font-display); font-size:24px; margin:0 0 10px;" id="p-title"></h2>
+      <p id="p-story" style="font-size:18px; line-height:1.75; margin:0 0 18px; background:var(--surface-2); border:1px dashed var(--border-bright); border-radius:12px; padding:16px 18px;"></p>
+
+      <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+        <span class="timer-pill" id="timer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/></svg><span id="timer-text">0:00</span></span>
+        <span class="timer-target" id="timer-target"></span>
+        <button class="btn btn--small btn--ghost" id="pause-btn" type="button" style="margin-left:auto;">Pause</button>
+        <button class="btn btn--small btn--ghost" id="restart-btn" type="button">Reset timer</button>
+      </div>
+      <div class="callout callout--teal" style="margin-bottom:0;">
+        <b>Timer tip:</b> the clock is your training partner, not your enemy. First solve <i>correctly</i>, then solve <i>fast</i>.
+      </div>
+    </section>
+
+    <!-- stage 1: understand -->
+    <section class="stage fade-in" id="stage-1" style="--i:1;">
+      <div class="stage__head">
+        <span class="stage__num" id="s1-num">1</span>
+        <span class="stage__title">Understand — catch the data</span>
+        <button class="btn btn--small btn--ghost" id="hint-btn" type="button" style="margin-left:auto;">Give me a hint (3)</button>
+      </div>
+      <div class="stage__body">
+        <div id="hint-box"></div>
+        <p style="margin:0 0 14px;" class="small muted">
+          Read the story twice — once for fun, once with a pencil. List every number and fact you can find.
+          Then say in your own words what the question wants.
+        </p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;" class="given-grid">
+          <div>
+            <p class="field-label">What is given? (list the facts)</p>
+            <textarea id="in-given" rows="4" placeholder="e.g. Rohan is 16 years old
+Rohan is 4 more than twice Meera"></textarea>
+          </div>
+          <div>
+            <p class="field-label">What is asked? (in your own words)</p>
+            <textarea id="in-asked" rows="4" placeholder="e.g. How old is Meera?"></textarea>
+          </div>
+        </div>
+        <div style="text-align:right; margin-top:12px;">
+          <button class="btn btn--primary" id="to-stage-2" type="button">I've caught the data — next step</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- stage 2: plan -->
+    <section class="stage is-locked" id="stage-2">
+      <div class="stage__head">
+        <span class="stage__num" id="s2-num">2</span>
+        <span class="stage__title">Plan — translate words into an equation</span>
+      </div>
+      <div class="stage__body">
+        <p style="margin:0 0 14px;" class="small muted">
+          Pick the unknown thing (the answer you want) and give it a letter like <b>x</b> or <b>m</b>.
+          Now turn each sentence into maths. "4 more than twice Meera" becomes <b>2 × m + 4</b>. That's the secret code!
+        </p>
+        <p class="field-label">My equation</p>
+        <input type="text" id="in-equation" placeholder="e.g. 2 × m + 4 = 16" autocomplete="off">
+        <div style="text-align:right; margin-top:12px;">
+          <button class="btn btn--primary" id="to-stage-3" type="button">My equation is ready — solve it</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- stage 3: solve -->
+    <section class="stage is-locked" id="stage-3">
+      <div class="stage__head">
+        <span class="stage__num" id="s3-num">3</span>
+        <span class="stage__title">Solve — unlock the answer</span>
+      </div>
+      <div class="stage__body">
+        <p style="margin:0 0 14px;" class="small muted">
+          Undo the operations gently, like opening a lock: reverse of + is −, reverse of × is ÷.
+        </p>
+        <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+          <div style="flex:1 1 220px;">
+            <p class="field-label" id="answer-label">My answer</p>
+            <input type="number" id="in-answer" step="any" placeholder="Type your number…" autocomplete="off">
+          </div>
+          <button class="btn btn--teal" id="check-btn" type="button">Check my answer</button>
+        </div>
+        <div id="retry-zone" style="display:none; margin-top:12px;">
+          <div class="callout callout--amber" style="margin:0;">
+            <h4>So close — don't give up!</h4>
+            <p style="margin:0 0 10px;" class="small">Go back and check two things: did you translate the words correctly, and did you undo the operations in the right order?</p>
+            <button class="btn btn--small btn--ghost" id="try-again-btn" type="button">Let me try again</button>
+            <button class="btn btn--small btn--ghost" id="show-solution-btn" type="button">Show me how a champion does it</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- result + champion path -->
+    <section id="result-zone" style="display:none;"></section>
+
+    <!-- reflection -->
+    <section class="stage" id="reflect-zone" style="display:none;">
+      <div class="stage__head">
+        <span class="stage__num" style="background:var(--teal);">✓</span>
+        <span class="stage__title">Reflect — this is where champions are made</span>
+      </div>
+      <div class="stage__body">
+        <div style="display:grid; grid-template-columns:1fr 220px; gap:16px;" class="reflect-grid">
+          <div>
+            <p class="field-label">One thing I learned or want to remember</p>
+            <textarea id="in-note" rows="3" placeholder="e.g. '4 more than twice m' means 2 × m + 4, not m + 4 twice"></textarea>
+            <button class="btn btn--teal" id="save-note-btn" type="button" style="margin-top:10px;">Save to my journal</button>
+            <span id="note-saved" class="tag tag--green" style="display:none; margin-left:8px;">Saved!</span>
+          </div>
+          <div>
+            <p class="field-label">How confident do you feel now?</p>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <button class="btn btn--ghost btn--small confidence-btn" data-conf="1" type="button">🌱 Still fuzzy — need more practice</button>
+              <button class="btn btn--ghost btn--small confidence-btn" data-conf="2" type="button">🌤 Getting there — I get the idea</button>
+              <button class="btn btn--ghost btn--small confidence-btn" data-conf="3" type="button">🔥 I could teach this to a friend!</button>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:18px; text-align:right;">
+          <button class="btn btn--primary" id="next-problem-btn" type="button">Next problem →</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    Olympiad Champ · Word Problem Lab · aligned with chapters: Whole Numbers · Write Equations · Solve by Comparison · Speed · Ratio · Profit & Loss
+  </footer>
+
+  <script src="assets/app.js"></script>
+  <script>
+  (function () {
+    OC.buildNav('word');
+
+    /* =================== PROBLEM BANK =================== */
+
+    var PROBLEMS = [
+      {
+        id: 'ages-rohan', level: 1, chapter: 'Write Equations', title: 'The Age Code',
+        story: 'Rohan is 4 years older than twice his sister Meera’s age. Rohan is 16 years old. How old is Meera?',
+        given: ['Rohan’s age = 16 years', 'Rohan = twice Meera + 4, i.e. Rohan = 2 × Meera + 4', 'Unknown: Meera’s age (call it m)'],
+        asked: 'Meera’s age, m.',
+        hints: [
+          'Call Meera’s age m. Then "twice Meera" is 2 × m.',
+          '"4 years older than twice Meera" means 2 × m + 4 — and that equals Rohan’s 16.',
+          'Write it: 2m + 4 = 16. Now undo: first − 4, then ÷ 2.'
+        ],
+        equation: '2 × m + 4 = 16',
+        steps: ['Undo the + 4: 2m + 4 − 4 = 16 − 4, so 2m = 12', 'Undo the × 2: m = 12 ÷ 2 = 6', 'Check: twice 6 is 12, plus 4 = 16. Matches Rohan’s age!'],
+        answer: 6, answerLabel: 'Meera’s age (in years)', fastWay: 'Mental shortcut: "16 minus the extra 4 is 12, and half of 12 is 6." Saying it in words first makes the equation almost write itself.',
+        targetSec: 120
+      },
+      {
+        id: 'pen-notebook', level: 1, chapter: 'Write Equations', title: 'The Stationery Shop',
+        story: 'At the school shop, a notebook costs ₹3 more than a pen. Together, a notebook and a pen cost ₹37. How much does the pen cost (in rupees)?',
+        given: ['Notebook = pen’s price + 3', 'Notebook + pen = 37', 'Unknown: pen’s price (call it p)'],
+        asked: 'The pen’s price, p.',
+        hints: [
+          'Call the pen’s price p. Then the notebook is p + 3.',
+          'Together they cost 37: p + (p + 3) = 37.',
+          'Two pens plus 3: 2p + 3 = 37. Undo the + 3 first.'
+        ],
+        equation: 'p + (p + 3) = 37, i.e. 2p + 3 = 37',
+        steps: ['Undo the + 3: 2p = 34', 'Undo the × 2: p = 17', 'So the pen costs ₹17 and the notebook 17 + 3 = ₹20. Check: 17 + 20 = 37.'],
+        answer: 17, answerLabel: 'Pen’s price (₹)', fastWay: 'Same-family trick: whenever two items differ by a small amount, remove the difference from the total first (37 − 3 = 34), then split equally (34 ÷ 2 = 17).',
+        targetSec: 150
+      },
+      {
+        id: 'marbles', level: 1, chapter: 'Whole Numbers', title: 'The Marble Jar',
+        story: 'A jar holds red and blue marbles. There are 84 marbles in total, and there are 12 more red ones than blue ones. How many blue marbles are there?',
+        given: ['Red + blue = 84', 'Red = blue + 12', 'Unknown: number of blue marbles (call it b)'],
+        asked: 'Number of blue marbles, b.',
+        hints: [
+          'If red = blue + 12, then replace "red" with (blue + 12) in the total.',
+          'b + (b + 12) = 84, so 2b + 12 = 84.',
+          'Undo + 12 then ÷ 2: b = 36.'
+        ],
+        equation: 'b + (b + 12) = 84, i.e. 2b + 12 = 84',
+        steps: ['Undo + 12: 2b = 72', 'Undo × 2: b = 36', 'Check: 36 blue + 48 red = 84 total, and 48 − 36 = 12 more red. Both facts hold!'],
+        answer: 36, answerLabel: 'Blue marbles', fastWay: 'Total minus the extra (84 − 12 = 72), halved (36). The "remove the difference, then halve" move solves dozens of olympiad problems.',
+        targetSec: 150
+      },
+      {
+        id: 'consecutive', level: 1, chapter: 'Whole Numbers', title: 'Neighbour Numbers',
+        story: 'Two consecutive numbers (one after the other, like 5 and 6) add up to 87. What is the smaller number?',
+        given: ['The numbers are n and n + 1', 'n + (n + 1) = 87', 'Unknown: the smaller number, n'],
+        asked: 'The smaller number, n.',
+        hints: [
+          'Consecutive numbers differ by exactly 1.',
+          'So the sum is n + (n + 1) = 2n + 1 = 87.',
+          '2n = 86, so n = 43.'
+        ],
+        equation: 'n + (n + 1) = 87, i.e. 2n + 1 = 87',
+        steps: ['Undo the + 1: 2n = 86', 'Undo the × 2: n = 43', 'So the numbers are 43 and 44. Check: 43 + 44 = 87.'],
+        answer: 43, answerLabel: 'The smaller number', fastWay: 'Instant trick: halve the sum (43.5) and round DOWN for the smaller, UP for the larger. Works for any two consecutive numbers!',
+        targetSec: 100
+      },
+      {
+        id: 'cycle-distance', level: 1, chapter: 'Speed', title: 'The Cycle Ride',
+        story: 'A cyclist rides at a steady 12 km every hour. She leaves home at 9:15 AM and reaches the park at 10:00 AM. How many kilometres is the park from her home?',
+        given: ['Speed = 12 km per hour', 'Time: 9:15 AM to 10:00 AM = 45 minutes = 45/60 of an hour', 'Unknown: distance d'],
+        asked: 'The distance, d.',
+        hints: [
+          'Distance = speed × time — but time must be in hours, not minutes.',
+          '45 minutes is 45/60 = 3/4 of an hour.',
+          'd = 12 × 3/4 = 9.'
+        ],
+        equation: 'd = 12 × (45/60)',
+        steps: ['Convert: 45 min = 45/60 h = 3/4 h', 'd = 12 × 3/4 = 36/4 = 9', 'Check: in 15 min she does 3 km, so 45 min = 3 × 3 = 9 km.'],
+        answer: 9, answerLabel: 'Distance (km)', fastWay: 'Fifteen-minute chunks: in 15 minutes she covers 12 ÷ 4 = 3 km. Three chunks of 15 min = 3 × 3 = 9. Chunking beats long multiplication here.',
+        targetSec: 140
+      },
+      {
+        id: 'cookies-ratio', level: 2, chapter: 'Ratio', title: 'The Cookie Jar Ratio',
+        story: 'In a jar, the ratio of chocolate cookies to vanilla cookies is 3 : 5. There are 40 cookies in all. How many chocolate cookies are in the jar?',
+        given: ['Chocolate : vanilla = 3 : 5 (so chocolate = 3 shares, vanilla = 5 shares)', 'Total = 8 shares = 40 cookies', 'Unknown: chocolate cookies = 3 shares'],
+        asked: 'Number of chocolate cookies.',
+        hints: [
+          'Ratios work in "shares". If chocolate is 3 shares and vanilla is 5 shares, the total is 8 shares.',
+          '8 shares = 40, so 1 share = 5.',
+          'Chocolate = 3 shares = 3 × 5.'
+        ],
+        equation: '3x + 5x = 40, so 8x = 40',
+        steps: ['1 share: x = 40 ÷ 8 = 5', 'Chocolate: 3 × 5 = 15, vanilla: 5 × 5 = 25', 'Check: 15 + 25 = 40 and 15 : 25 = 3 : 5.'],
+        answer: 15, answerLabel: 'Chocolate cookies', fastWay: 'Ratio shortcut: total parts 3 + 5 = 8. Divide the total by the parts first, multiply the share you need. Always find ONE share first.',
+        targetSec: 150
+      },
+      {
+        id: 'toy-profit', level: 2, chapter: 'Of Interest, Profit and Loss', title: 'The Toy Shop Deal',
+        story: 'A shopkeeper buys a toy car for ₹250 and sells it for ₹310. What is his profit per cent?',
+        given: ['Cost price CP = ₹250', 'Selling price SP = ₹310', 'Profit = 310 − 250 = ₹60; profit % is always on the COST price'],
+        asked: 'Profit per cent.',
+        hints: [
+          'First find the actual profit: SP − CP.',
+          'Profit % = (profit ÷ cost price) × 100.',
+          '60 ÷ 250 = 0.24, so 24%.'
+        ],
+        equation: 'Profit % = ((310 − 250) ÷ 250) × 100',
+        steps: ['Profit = 310 − 250 = ₹60', 'Fraction of cost: 60/250 = 6/25', '6/25 × 100 = 24%. Check: 24% of 250 = 60.'],
+        answer: 24, answerLabel: 'Profit (%)', fastWay: 'See 250? Think quarters: 25% of 250 would be 62.5, and 60 is just a bit less — so the answer must be just under 25. Estimating first catches silly mistakes.',
+        targetSec: 160
+      },
+      {
+        id: 'pencils-erasers', level: 2, chapter: 'Solve by Comparison and Replacement', title: 'Pencils and Erasers',
+        story: '3 pencils and 2 erasers together cost ₹34. A single pencil costs ₹8. How much does one eraser cost?',
+        given: ['3 pencils + 2 erasers = ₹34', '1 pencil = ₹8', 'Unknown: one eraser, e'],
+        asked: 'Price of one eraser.',
+        hints: [
+          'Find the cost of all 3 pencils first.',
+          '3 × 8 = 24, so the erasers cost 34 − 24.',
+          'Two erasers cost 10, so one eraser is 10 ÷ 2.'
+        ],
+        equation: '3 × 8 + 2e = 34',
+        steps: ['Pencils: 3 × 8 = ₹24', 'Erasers together: 34 − 24 = ₹10', 'One eraser: 10 ÷ 2 = ₹5. Check: 24 + 10 = 34.'],
+        answer: 5, answerLabel: 'One eraser (₹)', fastWay: '"Replace then subtract": swap each known item for its value first, subtract, and what’s left belongs only to the unknown item. This is the heart of the book’s comparison-and-replacement chapter.',
+        targetSec: 150
+      },
+      {
+        id: 'garden-perimeter', level: 2, chapter: 'Geometric Problem', title: 'The Kitchen Garden',
+        story: 'A rectangular garden is 3 m longer than it is wide. Walking all the way around it covers 46 m. How many metres wide is the garden?',
+        given: ['Length = width + 3', 'Perimeter = 2 × (length + width) = 46 m', 'Unknown: width w'],
+        asked: 'The width, w.',
+        hints: [
+          'Perimeter = 2 × (l + w). Half the perimeter is l + w = 23.',
+          'Replace l with (w + 3): w + (w + 3) = 23.',
+          '2w = 20, so w = 10.'
+        ],
+        equation: '2 × (w + (w + 3)) = 46',
+        steps: ['Halve the perimeter: w + (w + 3) = 23', 'So 2w + 3 = 23, giving 2w = 20', 'w = 10 m; length = 13 m. Check: 2 × (10 + 13) = 46.'],
+        answer: 10, answerLabel: 'Width (m)', fastWay: 'Perimeter problems shrink to half: 46 ÷ 2 = 23 immediately. Half-perimeter is just length + width — a smaller, friendlier equation.',
+        targetSec: 170
+      },
+      {
+        id: 'mother-age', level: 3, chapter: 'Write Equations', title: 'The Times-Table of Ages',
+        story: 'Mrs Iyer is 7 times as old as her son Vikram. In 6 years, she will be only 4 times as old as he is. How old is Vikram now?',
+        given: ['Now: Mrs Iyer = 7 × Vikram', 'In 6 years: Mrs Iyer + 6 = 4 × (Vikram + 6)', 'Unknown: Vikram’s age now, v'],
+        asked: 'Vikram’s current age.',
+        hints: [
+          'Both people get 6 years older — write the future ages as (v + 6) and (7v + 6).',
+          'Future equation: 7v + 6 = 4 × (v + 6).',
+          'Expand the right side: 7v + 6 = 4v + 24, so 3v = 18.'
+        ],
+        equation: '7v + 6 = 4 × (v + 6)',
+        steps: ['Expand: 7v + 6 = 4v + 24', 'Move the v’s together: 7v − 4v = 24 − 6', '3v = 18, so v = 6. Now Mrs Iyer is 42; in 6 years 48 = 4 × 12. Checks out!'],
+        answer: 6, answerLabel: 'Vikram’s age now (years)', fastWay: 'Golden rule for age problems: BOTH people age the same number of years. Build both future ages before writing the equation, and the algebra stays calm.',
+        targetSec: 300
+      },
+      {
+        id: 'digit-number', level: 3, chapter: 'Number Pattern', title: 'The Mystery Number',
+        story: 'In a two-digit number, the tens digit is 3 more than the units digit. The digits add up to 11. What is the number?',
+        given: ['Tens digit t = units digit u + 3', 't + u = 11', 'Unknown: the digits, then the number 10t + u'],
+        asked: 'The two-digit number.',
+        hints: [
+          'Call the units digit u. Then the tens digit is u + 3.',
+          'They add to 11: u + (u + 3) = 11.',
+          '2u = 8, u = 4, tens = 7 — the number is 74.'
+        ],
+        equation: 'u + (u + 3) = 11',
+        steps: ['2u + 3 = 11, so 2u = 8', 'u = 4 and tens digit = 4 + 3 = 7', 'The number is 74. Check: 7 + 4 = 11 and 7 − 4 = 3.'],
+        answer: 74, answerLabel: 'The two-digit number', fastWay: 'Digit problems love "sum" and "difference" together: sum 11 and difference 3 means the digits are (11+3)÷2 = 7 and (11−3)÷2 = 4. Sum-and-difference halves — instant.',
+        targetSec: 200
+      },
+      {
+        id: 'ducks-goats', level: 3, chapter: 'Solve Using Table or Drawing', title: 'Ducks and Goats',
+        story: 'A farmyard has ducks (2 legs each) and goats (4 legs each). A visitor counts 30 heads and 84 legs in total. How many goats are there?',
+        given: ['Ducks + goats = 30 heads', '2 × ducks + 4 × goats = 84 legs', 'Unknown: number of goats, g (so ducks = 30 − g)'],
+        asked: 'Number of goats.',
+        hints: [
+          'If all 30 were ducks, there would be 60 legs. But there are 84.',
+          'Each goat replaces a duck and adds 2 extra legs.',
+          'Extra legs = 84 − 60 = 24, so goats = 24 ÷ 2.'
+        ],
+        equation: '2 × (30 − g) + 4g = 84',
+        steps: ['Imagine all 30 are ducks: 30 × 2 = 60 legs', 'Extra legs: 84 − 60 = 24', 'Each goat adds 2 legs: goats = 24 ÷ 2 = 12 (and ducks = 18). Check: 18 × 2 + 12 × 4 = 36 + 48 = 84.'],
+        answer: 12, answerLabel: 'Number of goats', fastWay: 'The "assume the extreme" method: pretend all animals are the cheaper one, count the leftover legs, divide by the difference. No simultaneous equations needed — pure olympiad elegance.',
+        targetSec: 300
+      },
+      {
+        id: 'birthday-months', level: 3, chapter: 'Pigeonhole Principle', title: 'Birthdays in Class 6B',
+        story: 'Class 6B has 25 students. Show that at least how many students MUST share a birth month (there are 12 months in a year)?',
+        given: ['25 students', '12 possible birth months', 'Question: the guaranteed minimum in one month'],
+        asked: 'The smallest number that MUST share a month.',
+        hints: [
+          'Spread the students as evenly as possible: 25 ÷ 12 = 2 remainder 1.',
+          'That means every month can get 2 students, with 1 left over.',
+          'The leftover student must join some month, making 3 in that month.'
+        ],
+        equation: '25 = 12 × 2 + 1',
+        steps: ['Even spread: 2 students per month uses 24 students', '1 student remains and must join one month', 'So at least 3 students share a birth month — guaranteed, whichever way birthdays fall.'],
+        answer: 3, answerLabel: 'Students sharing a month', fastWay: 'Pigeonhole formula: with n things in k boxes, at least ⌈n ÷ k⌉ share a box. Here ⌈25 ÷ 12⌉ = 3. "Ceiling" just means round up.',
+        targetSec: 180
+      }
+    ];
+
+    /* =================== state =================== */
+
+    var current = null;
+    var timer = null;
+    var hintsShown = 0;
+    var attemptsThisProblem = 0;
+    var recorded = false;
+    var levelFilter = 'all';
+
+    var el = function (id) { return document.getElementById(id); };
+
+    function solvedIds() {
+      var s = {};
+      OC.STATE.attempts.forEach(function (a) { if (a.kind === 'word' && a.correct) s[a.id] = true; });
+      return s;
+    }
+
+    function renderProblemChips() {
+      var solved = solvedIds();
+      var host = el('problem-chips');
+      host.innerHTML = '';
+      PROBLEMS.forEach(function (p, i) {
+        if (levelFilter !== 'all' && p.level !== +levelFilter) return;
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chip' + (current && current.id === p.id ? ' is-active' : '');
+        b.innerHTML = (solved[p.id] ? '<span class="solved-dot">✓</span> ' : '') + (i + 1) + '. ' + p.title;
+        b.addEventListener('click', function () { loadProblem(p); });
+        host.appendChild(b);
+      });
+    }
+
+    el('level-chips').addEventListener('click', function (e) {
+      var btn = e.target.closest('.chip'); if (!btn) return;
+      levelFilter = btn.dataset.level;
+      OC.$all('#level-chips .chip').forEach(function (c) { c.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      renderProblemChips();
+    });
+
+    el('random-btn').addEventListener('click', function () {
+      var pool = PROBLEMS.filter(function (p) { return levelFilter === 'all' || p.level === +levelFilter; });
+      loadProblem(OC.pick(pool));
+    });
+
+    /* =================== timer =================== */
+
+    function setupTimer() {
+      if (timer) { timer.stop(); }
+      var pill = el('timer');
+      timer = new OC.ChampTimer(el('timer-text'), {
+        onTick: function (s) {
+          pill.classList.add('is-running');
+          pill.classList.toggle('is-warning', current && s > current.targetSec);
+          el('timer-target').textContent = 'Olympian target: ' + OC.fmtTime(current.targetSec);
+        }
+      });
+      pill.classList.remove('is-warning');
+      timer.start();
+    }
+
+    el('pause-btn').onclick = function () {
+      if (!timer) return;
+      if (timer.running) { timer.pause(); this.textContent = 'Resume'; el('timer').classList.remove('is-running'); }
+      else { timer.start(); this.textContent = 'Pause'; el('timer').classList.add('is-running'); }
+    };
+
+    el('restart-btn').addEventListener('click', function () {
+      timer.reset();
+      timer.start();
+      el('pause-btn').textContent = 'Pause';
+    });
+
+    /* =================== load a problem =================== */
+
+    function loadProblem(p) {
+      current = p;
+      hintsShown = 0;
+      recorded = false;
+      el('p-level').textContent = 'Level ' + p.level + (p.level === 1 ? ' · Warm-up' : p.level === 2 ? ' · Training' : ' · Olympian');
+      el('p-chapter').textContent = p.chapter;
+      el('p-title').textContent = p.title;
+      el('p-story').textContent = p.story;
+      var solved = solvedIds()[p.id];
+      el('p-solved-state').textContent = solved ? 'You’ve solved this one before — try beating your time!' : '';
+
+      /* reset the form */
+      el('in-given').value = ''; el('in-asked').value = '';
+      el('in-equation').value = ''; el('in-answer').value = '';
+      el('in-note').value = '';
+      el('hint-box').innerHTML = '';
+      el('hint-btn').textContent = 'Give me a hint (3)';
+      el('hint-btn').disabled = false;
+
+      el('stage-1').classList.remove('is-locked');
+      el('s1-num').textContent = '1'; el('s1-num').classList.remove('stage__num--done');
+      el('stage-2').classList.add('is-locked');
+      el('s2-num').textContent = '2'; el('s2-num').classList.remove('stage__num--done');
+      el('stage-3').classList.add('is-locked');
+      el('s3-num').textContent = '3'; el('s3-num').classList.remove('stage__num--done');
+      el('s3-num').classList.remove('stage__num--done');
+      el('retry-zone').style.display = 'none';
+      el('result-zone').style.display = 'none';
+      el('reflect-zone').style.display = 'none';
+      el('note-saved').style.display = 'none';
+      el('save-note-btn').disabled = false;
+      OC.$all('.confidence-btn').forEach(function (b) { b.classList.remove('is-picked'); });
+      el('answer-label').textContent = 'My answer';
+
+      setupTimer();
+      renderProblemChips();
+      el('problem-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* =================== hints =================== */
+
+    el('hint-btn').addEventListener('click', function () {
+      if (!current || hintsShown >= current.hints.length) return;
+      var div = document.createElement('div');
+      div.className = 'callout callout--amber';
+      div.innerHTML = '<h4>Hint ' + (hintsShown + 1) + ' of 3</h4><p style="margin:0;">' + current.hints[hintsShown] + '</p>';
+      el('hint-box').appendChild(div);
+      hintsShown++;
+      if (hintsShown >= current.hints.length) {
+        this.textContent = 'No more hints — you’ve got this!';
+        this.disabled = true;
+      } else {
+        this.textContent = 'Give me a hint (' + (current.hints.length - hintsShown) + ')';
+      }
+    });
+
+    /* =================== stage flow =================== */
+
+    el('to-stage-2').addEventListener('click', function () {
+      if (!el('in-given').value.trim() && !el('in-asked').value.trim()) {
+        el('in-given').focus();
+        var lb = el('in-given');
+        lb.style.borderColor = 'var(--red)';
+        setTimeout(function () { lb.style.borderColor = ''; }, 1200);
+        return;
+      }
+      el('stage-2').classList.remove('is-locked');
+      el('s1-num').textContent = '✓'; el('s1-num').classList.add('stage__num--done');
+      el('stage-2').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    el('to-stage-3').addEventListener('click', function () {
+      if (!el('in-equation').value.trim()) {
+        el('in-equation').focus();
+        el('in-equation').style.borderColor = 'var(--red)';
+        setTimeout(function () { el('in-equation').style.borderColor = ''; }, 1200);
+        return;
+      }
+      el('stage-3').classList.remove('is-locked');
+      el('s2-num').textContent = '✓'; el('s2-num').classList.add('stage__num--done');
+      el('stage-3').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el('in-answer').focus();
+    });
+
+    /* =================== check =================== */
+
+    el('check-btn').addEventListener('click', function () {
+      if (!current) return;
+      var val = parseFloat(el('in-answer').value);
+      if (isNaN(val)) { el('in-answer').focus(); return; }
+      var correct = Math.abs(val - current.answer) < 0.001;
+      var secs = timer.stop();
+
+      /* record the first attempt always; later attempts only when he fixes it */
+      if (!recorded || correct) {
+        var xp = OC.awardWord(correct, secs, current.targetSec);
+        OC.record({
+          kind: 'word', id: current.id, title: current.title,
+          correct: correct, timeSec: secs, targetSec: current.targetSec, xp: xp
+        });
+        recorded = true;
+      }
+
+      if (correct) showResult(true, secs);
+      else {
+        el('retry-zone').style.display = 'block';
+        el('check-btn').textContent = 'Check again';
+        el('in-answer').focus();
+        el('in-answer').select();
+      }
+    });
+
+    el('try-again-btn').addEventListener('click', function () {
+      el('retry-zone').style.display = 'none';
+      el('in-answer').focus();
+    });
+
+    el('show-solution-btn').addEventListener('click', function () {
+      showResult(false, timer.seconds());
+    });
+
+    /* =================== result panel =================== */
+
+    function timeVerdict(secs) {
+      var t = current.targetSec;
+      if (secs <= t * 0.6) return { cls: 'win', html: '<b>Lightning speed!</b> You finished in ' + OC.fmtTime(secs) + ' — way under the ' + OC.fmtTime(t) + ' target.' };
+      if (secs <= t) return { cls: 'win', html: '<b>Under target!</b> You finished in ' + OC.fmtTime(secs) + ', beating the ' + OC.fmtTime(t) + ' Olympian target.' };
+      if (secs <= t * 1.5) return { cls: 'mid', html: 'You took ' + OC.fmtTime(secs) + ' against a ' + OC.fmtTime(t) + ' target — close! Read the speed tip below and try this problem again from the top.' };
+      return { cls: 'mid', html: 'You took ' + OC.fmtTime(secs) + '. No problem — accuracy first, speed second. Re-read the speed tip, then reset the timer and try once more.' };
+    }
+
+    function showResult(correct, secs) {
+      el('retry-zone').style.display = 'none';
+      el('check-btn').textContent = 'Check my answer';
+      el('s3-num').textContent = '✓'; el('s3-num').classList.add('stage__num--done');
+
+      var tv = timeVerdict(secs);
+      var zone = el('result-zone');
+      var givenText = el('in-given').value.trim() || '(left blank)';
+      var askedText = el('in-asked').value.trim() || '(left blank)';
+      var eqText = el('in-equation').value.trim() || '(left blank)';
+
+      var html = '';
+
+      html += correct
+        ? '<div class="banner banner--win fade-scale"><h3>Correct — ' + current.answerLabel + ' = ' + current.answer + '</h3><p class="small" style="margin:0;">' + tv.html + '</p></div>'
+        : '<div class="banner banner--lose fade-scale"><h3>Champion’s answer: ' + current.answerLabel + ' = ' + current.answer + '</h3><p class="small" style="margin:0;">Wrong answers are data, not defeat. Study the champion’s path below — the exact step where yours went differently is your gold.</p></div>';
+
+      html += '<div class="card card--elevated" style="margin-top:16px;">';
+      html += '<p class="section-label section-label--teal">The champion’s path — compare with yours</p>';
+
+      html += '<p class="field-label" style="margin-top:0;">Step 1 · The data hiding in the story</p>';
+      html += '<div class="compare"><div class="compare__panel"><div class="compare__head compare__head--me">What you caught</div><div class="compare__body">' + OC.esc(givenText) + '\n\nAsked: ' + OC.esc(askedText) + '</div></div>' +
+              '<div class="compare__panel"><div class="compare__head compare__head--champ">What a champion catches</div><div class="compare__body">' +
+              current.given.map(function (g) { return '• ' + g; }).join('\n') + '\n\nAsked: ' + OC.esc(current.asked) + '</div></div></div>';
+      html += '<p class="small muted" style="margin:10px 0 18px;">Missed a fact? Next time, hunt for exactly as many facts as the champion found — they all matter.</p>';
+
+      html += '<p class="field-label">Step 2 · The equation</p>';
+      html += '<div class="compare"><div class="compare__panel"><div class="compare__head compare__head--me">Your equation</div><div class="compare__body">' + OC.esc(eqText) + '</div></div>' +
+              '<div class="compare__panel"><div class="compare__head compare__head--champ">Champion’s equation</div><div class="compare__body"><b>' + current.equation + '</b></div></div></div>';
+
+      html += '<p class="field-label" style="margin-top:18px;">Step 3 · The unlock, one move at a time</p><ol style="margin:0; padding-left:20px;">';
+      current.steps.forEach(function (s) { html += '<li style="margin-bottom:6px;">' + s + '</li>'; });
+      html += '</ol>';
+
+      html += '<div class="callout callout--amber" style="margin-bottom:0;"><h4>How to be faster next time</h4><p style="margin:0;">' + current.fastWay + '</p></div>';
+      html += '</div>';
+
+      zone.innerHTML = html;
+      zone.style.display = 'block';
+      el('reflect-zone').style.display = 'block';
+      zone.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* =================== reflection =================== */
+
+    el('save-note-btn').addEventListener('click', function () {
+      var note = el('in-note').value;
+      if (!note.trim()) { el('in-note').focus(); return; }
+      OC.addJournal(current.title, note);
+      this.disabled = true;
+      el('note-saved').style.display = 'inline-block';
+    });
+
+    OC.$all('.confidence-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        OC.$all('.confidence-btn').forEach(function (x) { x.classList.remove('is-picked'); });
+        b.classList.add('is-picked');
+      });
+    });
+
+    el('next-problem-btn').addEventListener('click', function () {
+      var i = PROBLEMS.indexOf(current);
+      var next = PROBLEMS[(i + 1) % PROBLEMS.length];
+      loadProblem(next);
+    });
+
+    /* =================== boot =================== */
+
+    loadProblem(PROBLEMS[0]);
+
+  })();
+  </script>
+</body>
+</html>
